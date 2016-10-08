@@ -1,0 +1,7 @@
+1.安装python3.5.1
+
+2.解压安装包 TDPS-1.1 (x64).zip，修改config目录下Tdps.xml，输入账户密码
+
+3.进入TDPS-1.1 (x64)，运行install.bat
+
+4.回到test.py目录，运行python test.py
