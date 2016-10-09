@@ -33,7 +33,7 @@ def getAllSSEL1(conn):
     conn.Subscribe(b'*',DSPStruct.EU_SSEL1Min,DSPStruct.DT_THIRTY_MIN)
     conn.Subscribe(b'*',DSPStruct.EU_SSEL1Min,DSPStruct.DT_SIXTY_MIN)
 
-def getAllSZSEL1(conn,code):
+def getAllSZSEL1(conn):
     # 深圳证券交易所每1min股票数据
     conn.RegSZSEL1MinCallBack(call.SZSEL1MinCallBack)
     conn.Subscribe(b'*',DSPStruct.EU_SZSEL1Min,DSPStruct.DT_ONE_MIN)
