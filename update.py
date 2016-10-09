@@ -23,7 +23,7 @@ def getSZSEL1(conn,code):
     conn.Subscribe(code,DSPStruct.EU_SZSEL1Min,DSPStruct.DT_FIFTEEN_MIN)
     conn.Subscribe(code,DSPStruct.EU_SZSEL1Min,DSPStruct.DT_THIRTY_MIN)
     conn.Subscribe(code,DSPStruct.EU_SZSEL1Min,DSPStruct.DT_SIXTY_MIN)
-    
+
 def getAllSSEL1(conn):
     conn.RegSSEL1MinCallBack(call.SSEL1MinCallBack)
     conn.Subscribe(r'*',DSPStruct.EU_SSEL1Min,DSPStruct.DT_ONE_MIN)
@@ -44,7 +44,7 @@ def getAllSZSEL1(conn,code):
     conn.Subscribe(r'*',DSPStruct.EU_SZSEL1Min,DSPStruct.DT_SIXTY_MIN)
 if __name__ == '__main__':
     conn = TDPS()
-    with codeFile as open('codes.csv','r'):
+    with open('codes.csv','r') as codeFile:
         print('读取文件成功,订阅股票中...')
         for code in codeFile.readlines():
             getSSEL1(conn,code)
