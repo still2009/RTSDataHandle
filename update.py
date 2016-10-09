@@ -44,11 +44,14 @@ def getAllSZSEL1(conn,code):
     conn.Subscribe(r'*',DSPStruct.EU_SZSEL1Min,DSPStruct.DT_SIXTY_MIN)
 if __name__ == '__main__':
     conn = TDPS()
-    with open('codes.csv','r') as codeFile:
-        print('读取文件成功,订阅股票中...')
-        for code in codeFile.readlines():
-            getSSEL1(conn,code)
-            getSZSEL1(conn,code)
-        print('订阅完成')
-    codeFile.close()
-    print('关闭股票代码文件')
+    getAllSSEL1(conn)
+    getAllSZSEL1(conn)
+    # with open('codes.csv','r') as codeFile:
+    #     print('读取文件成功,订阅股票中...')
+    #     for code in codeFile.readlines():
+    #         code_b = bytes(code,encoding='utf-8')
+    #         getSSEL1(conn,code_b)
+    #         getSZSEL1(conn,code_b)
+    #     print('订阅完成')
+    # codeFile.close()
+    # print('关闭股票代码文件')
