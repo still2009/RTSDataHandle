@@ -68,12 +68,13 @@ def SSEL1QuoteCallBack(SSEL1Quote):
             SSEL1Quote.PremiumRate,
             SSEL1Quote.ChangeRatio)
     fileUtil.Save(4112, data)
-    
+
+# 上海分时数据
 def SSEL1MinCallBack(Level1Min):
-    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,            
-           Level1Min.SecurityID,      
-           Level1Min.TradeTime,       
-           Level1Min.ProductID,       
+    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
+           Level1Min.SecurityID,
+           Level1Min.TradeTime,
+           Level1Min.ProductID,
            Level1Min.Symbol,
            Level1Min.TradingDate,
            Level1Min.TradingTime,
@@ -95,7 +96,35 @@ def SSEL1MinCallBack(Level1Min):
            Level1Min.CumulativeHighPrice,
            Level1Min.CumulativeVWAP)
     fileUtil.Save(4113, data)
-    
+
+# 深圳分时数据
+def SZSEL1MinCallBack(Level1Min):
+    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
+           Level1Min.SecurityID,
+           Level1Min.TradeTime,
+           Level1Min.ProductID,
+           Level1Min.Symbol,
+           Level1Min.TradingDate,
+           Level1Min.TradingTime,
+           Level1Min.UNIX,
+           Level1Min.Market,
+           Level1Min.ShortName.decode("UTF8"),
+           Level1Min.OpenPrice,
+           Level1Min.HighPrice,
+           Level1Min.LowPrice,
+           Level1Min.ClosePrice,
+           Level1Min.Volume,
+           Level1Min.Amount,
+           Level1Min.BenchMarkOpenPrice,
+           Level1Min.Change,
+           Level1Min.ChangeRatio,
+           Level1Min.TotalVolume,
+           Level1Min.VWAP,
+           Level1Min.CumulativeLowPrice,
+           Level1Min.CumulativeHighPrice,
+           Level1Min.CumulativeVWAP)
+    fileUtil.Save(8209, data)
+
 def SSEIOL1QuoteCallBack(SSEIOL1Quote):
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},\
         {},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},\
@@ -162,7 +191,7 @@ def SSEIOL1QuoteCallBack(SSEIOL1Quote):
            SSEIOL1Quote.BuyVOL,
            SSEIOL1Quote.PositionChange)
     fileUtil.Save(4368, data)
-    
+
 def SSEIOL1MinCallBack(SSEIOL1Min):
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(SSEIOL1Min.Freq,
            SSEIOL1Min.SecurityID,
@@ -179,7 +208,7 @@ def SSEIOL1MinCallBack(SSEIOL1Min):
            SSEIOL1Min.ClosePrice,
            SSEIOL1Min.Change,
            SSEIOL1Min.ChangeRatio,
-           SSEIOL1Min.Position,                                                                                      
+           SSEIOL1Min.Position,
            SSEIOL1Min.Volume,
            SSEIOL1Min.Amount,
            SSEIOL1Min.BenchMarkOpenPrice,
@@ -275,7 +304,7 @@ def SSEL2IndexCallBack(SSEL2Index):
            SSEL2Index.TotalAmount,
            SSEL2Index.ClosePrice)
     fileUtil.Save(4625, data)
-	
+
 def SSEL2OrderqueueCallBack(SSEL2Orderqueue):
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},\
 	{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},\
@@ -345,7 +374,7 @@ def SSEL2OrderqueueCallBack(SSEL2Orderqueue):
            SSEL2Orderqueue.OrderVolume49,
            SSEL2Orderqueue.OrderVolume50)
     fileUtil.Save(4626, data)
-	
+
 def SSEL2QuoteCallBack(SSEL2Quote):
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},\
 	    {},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},\
@@ -502,7 +531,7 @@ def SZSEL1QuoteCallBack(SZSEL1Quote):
            SZSEL1Quote.HighPrice,
            SZSEL1Quote.LowPrice,
            SZSEL1Quote.PriceChange01,
-           SZSEL1Quote.PriceChange02,                                                                                                                                                                                         
+           SZSEL1Quote.PriceChange02,
            SZSEL1Quote.BuyOrSell,
            SZSEL1Quote.SellPrice01,
            SZSEL1Quote.SellPrice02,
@@ -549,33 +578,7 @@ def SZSEL1QuoteCallBack(SZSEL1Quote):
            SZSEL1Quote.PERatio1,
            SZSEL1Quote.PERatio2)
     fileUtil.Save(8208, data)
-	
-def SZSEL1MinCallBack(Level1Min):
-    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,            
-           Level1Min.SecurityID,      
-           Level1Min.TradeTime,       
-           Level1Min.ProductID,       
-           Level1Min.Symbol,
-           Level1Min.TradingDate,
-           Level1Min.TradingTime,
-           Level1Min.UNIX,
-           Level1Min.Market,
-           Level1Min.ShortName.decode("UTF8"),
-           Level1Min.OpenPrice,
-           Level1Min.HighPrice,
-           Level1Min.LowPrice,
-           Level1Min.ClosePrice,
-           Level1Min.Volume,
-           Level1Min.Amount,
-           Level1Min.BenchMarkOpenPrice,
-           Level1Min.Change,
-           Level1Min.ChangeRatio,
-           Level1Min.TotalVolume,
-           Level1Min.VWAP,
-           Level1Min.CumulativeLowPrice,
-           Level1Min.CumulativeHighPrice,
-           Level1Min.CumulativeVWAP)
-    fileUtil.Save(8209, data)
+
 
 def SZSEL2IndexCallBack(SZSEL2Index):
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(SZSEL2Index.Freq,
@@ -599,7 +602,7 @@ def SZSEL2IndexCallBack(SZSEL2Index):
            SZSEL2Index.SecurityPhaseTag,
            SZSEL2Index.SampleNo)
     fileUtil.Save(8464, data)
-	
+
 def SZSEL2OrderCallBack(SZSEL2Order):
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(SZSEL2Order.Freq,
            SZSEL2Order.SecurityID,
@@ -610,7 +613,7 @@ def SZSEL2OrderCallBack(SZSEL2Order):
            SZSEL2Order.TradingTime,
            SZSEL2Order.UNIX,
            SZSEL2Order.Market,
-           SZSEL2Order.SetID, 
+           SZSEL2Order.SetID,
            SZSEL2Order.RecID,
            SZSEL2Order.SymbolSource,
            SZSEL2Order.OrderPrice,
@@ -634,11 +637,11 @@ def SZSEL2OrderqueueCallBack(SZSEL2Orderqueue):
            SZSEL2Orderqueue.Market,
            SZSEL2Orderqueue.LastPrice,
            SZSEL2Orderqueue.Side,
-           SZSEL2Orderqueue.NoPriceLevel, 
+           SZSEL2Orderqueue.NoPriceLevel,
            SZSEL2Orderqueue.Price,
            SZSEL2Orderqueue.Volume,
-           SZSEL2Orderqueue.Numorders, 
-           SZSEL2Orderqueue.Noorders, 
+           SZSEL2Orderqueue.Numorders,
+           SZSEL2Orderqueue.Noorders,
            SZSEL2Orderqueue.OrderVolume01,
            SZSEL2Orderqueue.OrderVolume02,
            SZSEL2Orderqueue.OrderVolume03,
@@ -730,7 +733,7 @@ def SZSEL2QuoteCallBack(SZSEL2Quote):
            SZSEL2Quote.PremiumRate,
            SZSEL2Quote.TotalSellOrderVolume,
            SZSEL2Quote.WtAvgSellPrice,
-           SZSEL2Quote.SellLevelNo, 
+           SZSEL2Quote.SellLevelNo,
            SZSEL2Quote.SellPrice01,
            SZSEL2Quote.SellVolume01,
            SZSEL2Quote.TotalSellOrderNo01,
@@ -763,7 +766,7 @@ def SZSEL2QuoteCallBack(SZSEL2Quote):
            SZSEL2Quote.TotalSellOrderNo10,
            SZSEL2Quote.TotalBuyOrderVolume,
            SZSEL2Quote.WtAvgBuyPrice,
-           SZSEL2Quote.BuyLevelNo, 
+           SZSEL2Quote.BuyLevelNo,
            SZSEL2Quote.BuyPrice01,
            SZSEL2Quote.BuyVolume01,
            SZSEL2Quote.TotalBuyOrderNo01,
@@ -815,10 +818,10 @@ def SZSEL2StaticCallBack(SZSEL2Static):
            SZSEL2Static.ISINCode,
            SZSEL2Static.SymbolUnderlying,
            SZSEL2Static.UnderlyingSecurityIDSource,
-           SZSEL2Static.SecurityType, 
+           SZSEL2Static.SecurityType,
            SZSEL2Static.SecurityStatusTag,
            SZSEL2Static.PreClosePrice,
-           SZSEL2Static.ListingDate, 
+           SZSEL2Static.ListingDate,
            SZSEL2Static.Currency,
            SZSEL2Static.ParValue,
            SZSEL2Static.IssuedVolume,
@@ -831,18 +834,18 @@ def SZSEL2StaticCallBack(SZSEL2Static):
            SZSEL2Static.CouponRate,
            SZSEL2Static.IssuePrice,
            SZSEL2Static.Interest,
-           SZSEL2Static.InterestAccrualDate, 
-           SZSEL2Static.MaturityDate, 
+           SZSEL2Static.InterestAccrualDate,
+           SZSEL2Static.MaturityDate,
            SZSEL2Static.ConversionPrice,
            SZSEL2Static.ConversionRatio,
-           SZSEL2Static.ConversionBeginDate, 
-           SZSEL2Static.ConversionEndDate, 
+           SZSEL2Static.ConversionBeginDate,
+           SZSEL2Static.ConversionEndDate,
            SZSEL2Static.CallOrPut,
            SZSEL2Static.WarrantClearingType,
            SZSEL2Static.ClearingPrice,
            SZSEL2Static.OptionType,
-           SZSEL2Static.EndDate, 
-           SZSEL2Static.ExpirationDays, 
+           SZSEL2Static.EndDate,
+           SZSEL2Static.ExpirationDays,
            SZSEL2Static.DayTrading,
            SZSEL2Static.GageFlag,
            SZSEL2Static.GageRate,
@@ -927,7 +930,7 @@ def SZSEL2TransactionCallBack(SZSEL2Transaction):
            SZSEL2Transaction.UNIX,
            SZSEL2Transaction.Market,
            SZSEL2Transaction.SymbolSource,
-           SZSEL2Transaction.SetID, 
+           SZSEL2Transaction.SetID,
            SZSEL2Transaction.RecID,
            SZSEL2Transaction.BuyOrderID,
            SZSEL2Transaction.SellOrderID,
