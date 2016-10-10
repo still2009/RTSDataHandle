@@ -28,13 +28,14 @@ def getAllSZSEL1(conn):
     conn.RegSZSEL1MinCallBack(call.SZSEL1MinCallBack)
     for freq in (60,300,600,900,1800,3600):
         conn.Subscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
-
-if __name__ == '__main__':
+def run():
     conn = TDPS()
     print('连接成功')
 
     getAllSSEL1(conn)
     print('上海市场 分时数据订阅成功')
-    
+
     getAllSZSEL1(conn)
     print('深圳市场 分时数据订阅成功')
+if __name__ == '__main__':
+    print('import success')
