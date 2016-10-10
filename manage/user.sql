@@ -5,7 +5,7 @@ declare @sql varchar(200)
 declare @uname varchar(20)
 declare @pwd varchar(20)
 declare @dbrole varchar(20)
-set @uname='test'
+set @uname='finx03'
 set @pwd='finx-c0mm0n'
 --创建登陆帐户（create login）
 set @sql='create login ' + @uname + ' with password='''+ @pwd +''', default_database=master'
