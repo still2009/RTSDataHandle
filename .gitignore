@@ -2,3 +2,4 @@
 ipconfig.txt
 /__pycache__
 /2016*
+*.pyc

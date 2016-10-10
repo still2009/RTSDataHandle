@@ -69,9 +69,9 @@ def SSEL1QuoteCallBack(SSEL1Quote):
             SSEL1Quote.ChangeRatio)
     fileUtil.Save(4112, data)
 
-# 上海分时数据
+# 上海分时数据,额外增加receive_unix
 def SSEL1MinCallBack(Level1Min):
-    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
+    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
            Level1Min.SecurityID,
            Level1Min.TradeTime,
            Level1Min.ProductID,
@@ -94,12 +94,13 @@ def SSEL1MinCallBack(Level1Min):
            Level1Min.VWAP,
            Level1Min.CumulativeLowPrice,
            Level1Min.CumulativeHighPrice,
-           Level1Min.CumulativeVWAP)
+           Level1Min.CumulativeVWAP,
+           str(time.time()))
     fileUtil.Save(4113, data)
 
-# 深圳分时数据
+# 深圳分时数据,额外增加receive_unix
 def SZSEL1MinCallBack(Level1Min):
-    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
+    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
            Level1Min.SecurityID,
            Level1Min.TradeTime,
            Level1Min.ProductID,
@@ -122,7 +123,8 @@ def SZSEL1MinCallBack(Level1Min):
            Level1Min.VWAP,
            Level1Min.CumulativeLowPrice,
            Level1Min.CumulativeHighPrice,
-           Level1Min.CumulativeVWAP)
+           Level1Min.CumulativeVWAP,
+           str(time.time()))
     fileUtil.Save(8209, data)
 
 def SSEIOL1QuoteCallBack(SSEIOL1Quote):

@@ -43,7 +43,7 @@ class FileUtil:
 
     def Save(self, msgType, data):
         conn = self.GetFileConn(msgType)
-        conn.write(data+"\n")
+        conn.write(data + "\n")
         pass
 
     def GetFileConn(self, msgType):
@@ -59,7 +59,7 @@ class FileUtil:
         for conn in self.__fileDic__.values():
             conn.flush()
         self.schedule.enter(self.inc, 0, self.Flush)
-        
+
     def Close(self):
         for conn in self.__fileDic__.values():
             conn.flush()
@@ -68,7 +68,7 @@ class FileUtil:
     def ScheduleStart(self):
         self.schedule.enter(self.inc, 0, self.Flush)
         self.schedule.run()
-
+    # 添加ReceiveUNIX字段
     def GetFileHead(self, msgType):
         str1 = ""
         for ss in DSPStruct.__MsgTypeDic__.get(msgType)._fields_:
@@ -82,16 +82,18 @@ class FileUtil:
                 str1 = str1 + "," +ss[0]
             else:
                 str1 = ss[0]
+        # 添加ReceiveUNIX字段
+        str1 = str1 + ',' + 'ReceiveUNIX'
         return str1
 
 class SchFlush(threading.Thread):
     def __init__(self, ft):
         threading.Thread.__init__(self)
         self.fileutil = ft
-    
+
     def run(self):
         self.fileutil.ScheduleStart()
-            
+
 if __name__ == "__main__":
     fileUtil = FileUtil()
     print("ssssssssssss")
@@ -100,5 +102,3 @@ if __name__ == "__main__":
         fileUtil.Save(12560,"xxxxxxxxxxxx")
         i = i+1
     fileUtil.Close()
-    
-
