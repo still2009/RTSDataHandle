@@ -38,6 +38,7 @@ def SSEL1MinCallBack(Level1Min):
 
 # 深圳分时数据,额外增加receive_unix
 def SZSEL1MinCallBack(Level1Min):
+    a = Level1Min['Freq']
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
            Level1Min.SecurityID,
            Level1Min.TradeTime,
@@ -93,5 +94,6 @@ def getAllSZSEL1(conn):
 if __name__ == '__main__':
     conn = TDPS()
     print('连接成功')
+    getSSEL1(conn,b'000857')
     # getAllSSEL1(conn)
     # getAllSZSEL1(conn)
