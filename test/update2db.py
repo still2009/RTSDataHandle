@@ -57,7 +57,13 @@ def getAllSZSEL1(conn):
     conn.RegSZSEL1MinCallBack(DB_MinCallBack)
     for freq in (60,300,600,900,1800,3600):
         conn.Subscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
-
+def unSubAll(conn):
+    conn.RegSSEL1MinCallBack(DB_MinCallBack)
+    for freq in (60,300,600,900,1800,3600):
+        conn.unSubscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
+    conn.RegSZSEL1MinCallBack(DB_MinCallBack)
+    for freq in (60,300,600,900,1800,3600):
+        conn.unSubscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
 if __name__ == '__main__':
     conn = TDPS()
     print('连接成功')
