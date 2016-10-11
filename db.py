@@ -5,12 +5,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mssql import INTEGER,VARCHAR,DATE,DATETIME,DECIMAL,NVARCHAR,BIGINT
 import time
 from DSPStruct import Level1Min
-import codecs
+import codecs,sys
 
 Base = declarative_base()
 REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13:1433/GTA_UPDATE'
 LOCAL_CONN = 'mssql+pyodbc://admin:c0mm0n-adm1n@finx'
-engine = create_engine(REMOTE_CONN)
+engine = create_engine(LOCAL_CONN)
 Session = sessionmaker(bind=engine)
 
 class MinuteDataModel(Base):
@@ -65,14 +65,14 @@ def Str2MinuteData(data):
         elif ft.find('double') != -1:
             rowData[key] = float(value)
         else:
-            print(value)
             rowData[key] = value
-    print('begin consrtuct obj')
     return MinuteDataModel(**rowData)
-
-def importFromCSV(fname,session):
+def printProgress(content):
+    sys.stdout.write('%s\r' % content)
+    sys.stdout.flush()
+def importFromCSV(fname,session,codec='gbk'):
     '''从csv文件导入数据'''
-    with codecs.open(fname,'r','utf-8') as f:
+    with codecs.open(fname,'r',codec) as f:
         # 检查第一行是否为表的字段
         header = f.readline()
         if header.find('Freq') == -1:
@@ -81,9 +81,15 @@ def importFromCSV(fname,session):
         else:
             print('第一行是字段列,按照默认顺序到入,请检查是否一致')
         # 其他行为数据
-        for line in f.readlines():
+        print('读取文件中...')
+        lines = f.readlines()
+        print('读取完毕')
+        for idx,line in enumerate(lines):
             row = Str2MinuteData(line)
             session.add(row)
+            printProgress('%s in total %s' % (idx+1,len(lines)))
+            if idx%1000 == 0:
+                session.commit()
         session.commit()
 
 def createTable(engine):
@@ -94,7 +100,8 @@ def save(data,session):
     session.add(row)
     session.commit()
 if __name__ == '__main__':
-    # createTable(engine)
-    # importFromCSV('t.txt',Session())
     print('导入db模块成功')
+    createTable(engine)
+    importFromCSV('20161011100401/4113.txt',Session())
+    importFromCSV('20161011100401/8209.txt',Session())
     pass
