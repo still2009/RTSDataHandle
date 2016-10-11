@@ -15,7 +15,6 @@ TEST_LOCAL_CONN = 'mssql+pyodbc://admin:c0mm0n-adm1n@finx_test'
 LOCAL_CONN = 'mssql+pyodbc://admin:c0mm0n-adm1n@finx'
 CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
 engine = create_engine(CONN)
-
 Session = sessionmaker(bind=engine)
 
 class MinuteDataModel(Base):
@@ -112,9 +111,7 @@ def test():
     TSession = sessionmaker(bind=testEngine)
     createTable(testEngine)
     save(DATA,TSession())
+# 导入时创建表
+createTable(engine)
 if __name__ == '__main__':
-    createTable(engine)
-    # importFromCSV('t.txt',Session())
-    # test()
-    print('导入db模块成功')
     pass
