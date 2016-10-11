@@ -2,7 +2,6 @@
 from TDPS import *
 from DSPStruct import *
 import call
-import time
 
 # 上海单支订阅
 def getSSEL1(conn,code):

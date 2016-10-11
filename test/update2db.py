@@ -1,7 +1,6 @@
 # coding=UTF-8
 from TDPS import *
 from DSPStruct import *
-import time
 from db import *
 
 # 分时数据,额外增加receive_unix,ReceiveDate
@@ -33,7 +32,6 @@ def DB_MinCallBack(Level1Min):
            time.time(),
            datetime.datetime().now().strftime('%Y-%m-%d %H:%M:%S'))
     save(data,getSession())
-
 
 # 上海单支订阅
 def getSSEL1(conn,code):

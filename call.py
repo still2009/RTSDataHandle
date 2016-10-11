@@ -1,6 +1,5 @@
 # coding=UTF-8
 from file import *
-import datetime
 
 fileUtil = FileUtil()
 

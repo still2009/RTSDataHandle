@@ -1,5 +1,5 @@
 # coding:utf-8
-import time
+import time,datetime
 import os
 import sched
 import threading
@@ -41,6 +41,7 @@ class FileUtil:
     def Flush(self):
         for conn in self.__fileDic__.values():
             conn.flush()
+        # 延时30s执行
         self.schedule.enter(self.inc, 0, self.Flush)
 
     def Close(self):
