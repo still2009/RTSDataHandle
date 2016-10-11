@@ -19,7 +19,7 @@ engine = create_engine(CONN)
 Session = sessionmaker(bind=engine)
 
 class MinuteDataModel(Base):
-    __tablename__ = 'MINUTE_DATA'
+    __tablename__ = 'MINUTE_DATA_%s' % datetime.datetime.now().strftime('%Y_%m_%d')
     DataID = Column(BIGINT,primary_key=True)
     Freq = Column(INTEGER)
     SecurityID = Column(BIGINT)
@@ -113,6 +113,7 @@ def test():
     createTable(testEngine)
     save(DATA,TSession())
 if __name__ == '__main__':
+    createTable(engine)
     # importFromCSV('t.txt',Session())
     # test()
     print('导入db模块成功')
