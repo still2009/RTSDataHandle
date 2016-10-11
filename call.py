@@ -31,7 +31,7 @@ def SSEL1MinCallBack(Level1Min):
            Level1Min.CumulativeHighPrice,
            Level1Min.CumulativeVWAP,
            time.time(),
-           datetime.datetime().now())
+           datetime.datetime().now().strftime('%Y-%m-%d %H:%M:%S'))
     fileUtil.Save(4113,data)
 
 # 深圳分时数据,额外增加receive_unix,receiveDate
@@ -61,7 +61,7 @@ def SZSEL1MinCallBack(Level1Min):
            Level1Min.CumulativeHighPrice,
            Level1Min.CumulativeVWAP,
            time.time(),
-           datetime.datetime.now())
+           datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     fileUtil.Save(8209,data)
 
 def SSEL1QuoteCallBack(SSEL1Quote):

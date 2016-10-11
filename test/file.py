@@ -10,7 +10,7 @@ msgTypeMap = {
     '8209':'深圳证券交易所_分时数据_'
 }
 # add ReceiveDate
-FIELDS = 'Freq,SecurityID,TradeTime,ProductID,Symbol,TradingDate,TradingTime,UNIX,Market,ShortName,OpenPrice,HighPrice,LowPrice,ClosePrice,Volume,Amount,BenchMarkOpenPrice,Change,ChangeRatio,TotalVolume,VWAP,CumulativeLowPrice,CumulativeHighPrice,CumulativeVWAP,ReceiveUNIX,ReceiveDate'\
+FIELDS = 'Freq,SecurityID,TradeTime,ProductID,Symbol,TradingDate,TradingTime,UNIX,Market,ShortName,OpenPrice,HighPrice,LowPrice,ClosePrice,Volume,Amount,BenchMarkOpenPrice,Change,ChangeRatio,TotalVolume,VWAP,CumulativeLowPrice,CumulativeHighPrice,CumulativeVWAP,ReceiveUNIX,ReceiveDate'
 
 class FileUtil:
     def __init__(self):
@@ -60,10 +60,12 @@ class SchFlush(threading.Thread):
     def run(self):
         self.fileutil.ScheduleStart()
 
-if __name__ == "__main__":
+def test():
     fileUtil = FileUtil()
     data = 'test data xxxxxxxxxxxx'
     fileUtil.Save('4113',60,data)
     fileUtil.Save('4113',360,data)
     fileUtil.Save('4113',300,data)
     fileUtil.Save('8209',300,data)
+if __name__ == "__main__":
+    pass

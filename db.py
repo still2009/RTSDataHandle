@@ -55,6 +55,7 @@ def Str2MinuteData(data):
 
     fieldsType = [str(i[1]) for i in Level1Min._fields_]
     fieldsType.append('double')
+    fieldsType.append('xxx')# ReceiveDate
     rowData = {}
     for key,value,ft in zip(FIELDS,data.split(','),fieldsType):
         if value.startswith('b'): # 解析出b开头的数据

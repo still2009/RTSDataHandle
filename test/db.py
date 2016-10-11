@@ -3,13 +3,15 @@ from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mssql import INTEGER,VARCHAR,DATE,DATETIME,DECIMAL,NVARCHAR,BIGINT
-import time
+import time,datetime
 from DSPStruct import Level1Min
 import codecs
 from file import FIELDS
 
 Base = declarative_base()
 REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13:1433/GTA_UPDATE'
+TEST_REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13:1433/TEST'
+TEST_LOCAL_CONN = 'mssql+pyodbc://admin:c0mm0n-adm1n@finx_test'
 LOCAL_CONN = 'mssql+pyodbc://admin:c0mm0n-adm1n@finx'
 engine = create_engine(REMOTE_CONN)
 Session = sessionmaker(bind=engine)
@@ -56,7 +58,8 @@ def Str2MinuteData(data):
     fields = FIELDS.split(',')
 
     fieldsType = [str(i[1]) for i in Level1Min._fields_]
-    fieldsType.append('double')
+    fieldsType.append('double')# receive_unix
+    fieldsType.append('xxx')# ReceiveDate
     rowData = {}
     for key,value,ft in zip(fields,data.split(','),fieldsType):
         if value.startswith('b'): # 解析出b开头的数据
@@ -67,9 +70,8 @@ def Str2MinuteData(data):
         elif ft.find('double') != -1:
             rowData[key] = float(value)
         else:
-            print(value)
             rowData[key] = value
-    print('begin consrtuct obj')
+    print(rowData)
     return MinuteDataModel(**rowData)
 
 def importFromCSV(fname,session):
@@ -91,12 +93,22 @@ def importFromCSV(fname,session):
 def createTable(engine):
     '''创建表格'''
     Base.metadata.create_all(engine)
+def getSession():
+    return Session()
 def save(data,session):
     row = Str2MinuteData(data)
     session.add(row)
     session.commit()
+def test():
+    DATA = '''60,204000002126,1476151500000,4294967295,b'000857',b'2016-10-11',b'2016-10-11 10:05:00.000',1476151500000,b'SSE',500医药,13255.13,13256.477,13255.13,13255.299,12285.0,25170952.0,13263.522,-0.812,-0.0001,662841,0.0,13233.555,13273.289,0.0,{},{}'''
+    DATA = DATA.format(time.time(),datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    DATA = DATA.decode('utf-8')
+    testEngine = create_engine(TEST_REMOTE_CONN)
+    TSession = sessionmaker(bind=testEngine)
+    createTable(testEngine)
+    save(DATA,TSession())
 if __name__ == '__main__':
-    # createTable(engine)
     # importFromCSV('t.txt',Session())
+    # test()
     print('导入db模块成功')
     pass
