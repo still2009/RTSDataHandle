@@ -62,4 +62,6 @@ if __name__ == '__main__':
     conn = TDPS()
     print('连接成功')
     getAllSSEL1(conn)
+    print('上海订阅成功')
     getAllSZSEL1(conn)
+    print('深圳订阅成功')
