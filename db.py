@@ -8,7 +8,9 @@ from DSPStruct import Level1Min
 import codecs
 
 Base = declarative_base()
-engine = create_engine('mssql+pyodbc://admin:c0mm0n-adm1n@finx')
+REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13:1433/GTA_UPDATE'
+LOCAL_CONN = 'mssql+pyodbc://admin:c0mm0n-adm1n@finx'
+engine = create_engine(REMOTE_CONN)
 Session = sessionmaker(bind=engine)
 
 class MinuteDataModel(Base):
@@ -48,10 +50,9 @@ class MinuteDataModel(Base):
         (self.ShortName,self.ProductID,self.SecurityID)
 # 将一行的字符串数据转换为ORM类对象
 def Str2MinuteData(data):
-    FIELDS = 'Freq,SecurityID,TradeTime,ProductID,Symbol,TradingDate,\
-    TradingTime,UNIX,Market,ShortName,OpenPrice,HighPrice,LowPrice,ClosePrice,\
-    Volume,Amount,BenchMarkOpenPrice,Change,ChangeRatio,TotalVolume,VWAP,\
-    CumulativeLowPrice,CumulativeHighPrice,CumulativeVWAP,ReceiveUNIX'
+    FIELDS = 'Freq,SecurityID,TradeTime,ProductID,Symbol,TradingDate,TradingTime,UNIX,Market,ShortName,OpenPrice,HighPrice,LowPrice,ClosePrice,Volume,Amount,BenchMarkOpenPrice,Change,ChangeRatio,TotalVolume,VWAP,CumulativeLowPrice,CumulativeHighPrice,CumulativeVWAP,ReceiveUNIX'\
+    .split(',')
+
     fieldsType = [str(i[1]) for i in Level1Min._fields_]
     fieldsType.append('double')
     rowData = {}
@@ -68,10 +69,11 @@ def Str2MinuteData(data):
             rowData[key] = value
     print('begin consrtuct obj')
     return MinuteDataModel(**rowData)
+
 def importFromCSV(fname,session):
     '''从csv文件导入数据'''
     with codecs.open(fname,'r','utf-8') as f:
-        # 第一行为表的字段
+        # 检查第一行是否为表的字段
         header = f.readline()
         if header.find('Freq') == -1:
             print('第一行不是字段列，按照默认顺序导入')
@@ -87,15 +89,12 @@ def importFromCSV(fname,session):
 def createTable(engine):
     '''创建表格'''
     Base.metadata.create_all(engine)
-def save(Level1Min,session):
-    row = MinuteDataModel()
-    for f in Level1Min:
-        setattr(row,f[0],getattr(Level1Min,f[0]))
-    setattr(row,'ReceiveUNIX',time.time())
+def save(data,session):
+    row = Str2MinuteData(data)
     session.add(row)
     session.commit()
 if __name__ == '__main__':
-    createTable(engine)
-    importFromCSV('t.txt',Session())
-    print('succ')
+    # createTable(engine)
+    # importFromCSV('t.txt',Session())
+    print('导入db模块成功')
     pass

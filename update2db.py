@@ -34,7 +34,7 @@ def SSEL1MinCallBack(Level1Min):
            Level1Min.CumulativeHighPrice,
            Level1Min.CumulativeVWAP,
            str(time.time()))
-    # fileUtil.Save(4113, data)
+    save(data)
 
 # 深圳分时数据,额外增加receive_unix
 def SZSEL1MinCallBack(Level1Min):
@@ -64,7 +64,7 @@ def SZSEL1MinCallBack(Level1Min):
            Level1Min.CumulativeHighPrice,
            Level1Min.CumulativeVWAP,
            str(time.time()))
-    # fileUtil.Save(8209, data)
+    save(data)
 
 # 上海单支订阅
 def getSSEL1(conn,code):
