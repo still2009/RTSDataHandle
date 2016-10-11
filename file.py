@@ -27,21 +27,24 @@ nameField = ['BuyPrice01',
            'SellVolume05']
 msgTypeFieldT = [4368, 12560]
 nameFieldT = ['Theta','Vega','Rho','Gamma']
-
+msgTypeMap = {
+    '4113':'上海证券交易所_分时数据_',
+    '8209':'深圳证券交易所_分时数据_'
+}
 
 class FileUtil:
     def __init__(self):
         self.schedule = sched.scheduler(time.time, time.sleep)
         self.inc = 30
         self.__fileDic__={}
-        self.StyleTime = time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
+        self.StyleTime = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time()))
         if not os.path.exists(self.StyleTime):
             os.mkdir(self.StyleTime)
         scf = SchFlush(self)
         scf.start()
         pass
 
-    def Save(self, msgType, data):
+    def Save(self,msgType,data):
         conn = self.GetFileConn(msgType)
         conn.write(data + "\n")
         pass
@@ -50,7 +53,7 @@ class FileUtil:
         if msgType in self.__fileDic__:
             return self.__fileDic__.get(msgType)
         else:
-            fileConn = open(self.StyleTime+"//"+str(msgType)+".txt","a+")
+            fileConn = open(self.StyleTime+"//"+str(msgType) + ".txt","a+")
             self.__fileDic__[msgType]= fileConn
             fileConn.write(self.GetFileHead(msgType)+"\n")
             return fileConn
@@ -68,7 +71,7 @@ class FileUtil:
     def ScheduleStart(self):
         self.schedule.enter(self.inc, 0, self.Flush)
         self.schedule.run()
-    # 添加ReceiveUNIX字段
+    # 添加ReceiveUNIX 和 receiveDate字段
     def GetFileHead(self, msgType):
         str1 = ""
         for ss in DSPStruct.__MsgTypeDic__.get(msgType)._fields_:
@@ -84,7 +87,11 @@ class FileUtil:
                 str1 = ss[0]
         # 添加ReceiveUNIX字段
         str1 = str1 + ',' + 'ReceiveUNIX'
+        # 添加ReceiveDate字段
+        str1 = str1 + ',' + 'ReceiveDate'
         return str1
+
+
 
 class SchFlush(threading.Thread):
     def __init__(self, ft):

@@ -1,7 +1,68 @@
 # coding=UTF-8
 from file import *
+import datetime
 
 fileUtil = FileUtil()
+
+# 上海分时数据,额外增加receive_unix,receiveDate
+def SSEL1MinCallBack(Level1Min):
+    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
+           Level1Min.SecurityID,
+           Level1Min.TradeTime,
+           Level1Min.ProductID,
+           Level1Min.Symbol,
+           Level1Min.TradingDate,
+           Level1Min.TradingTime,
+           Level1Min.UNIX,
+           Level1Min.Market,
+           Level1Min.ShortName.decode("UTF8"),
+           Level1Min.OpenPrice,
+           Level1Min.HighPrice,
+           Level1Min.LowPrice,
+           Level1Min.ClosePrice,
+           Level1Min.Volume,
+           Level1Min.Amount,
+           Level1Min.BenchMarkOpenPrice,
+           Level1Min.Change,
+           Level1Min.ChangeRatio,
+           Level1Min.TotalVolume,
+           Level1Min.VWAP,
+           Level1Min.CumulativeLowPrice,
+           Level1Min.CumulativeHighPrice,
+           Level1Min.CumulativeVWAP,
+           time.time(),
+           datetime.datetime().now())
+    fileUtil.Save(4113,data)
+
+# 深圳分时数据,额外增加receive_unix,receiveDate
+def SZSEL1MinCallBack(Level1Min):
+    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
+           Level1Min.SecurityID,
+           Level1Min.TradeTime,
+           Level1Min.ProductID,
+           Level1Min.Symbol,
+           Level1Min.TradingDate,
+           Level1Min.TradingTime,
+           Level1Min.UNIX,
+           Level1Min.Market,
+           Level1Min.ShortName.decode("UTF8"),
+           Level1Min.OpenPrice,
+           Level1Min.HighPrice,
+           Level1Min.LowPrice,
+           Level1Min.ClosePrice,
+           Level1Min.Volume,
+           Level1Min.Amount,
+           Level1Min.BenchMarkOpenPrice,
+           Level1Min.Change,
+           Level1Min.ChangeRatio,
+           Level1Min.TotalVolume,
+           Level1Min.VWAP,
+           Level1Min.CumulativeLowPrice,
+           Level1Min.CumulativeHighPrice,
+           Level1Min.CumulativeVWAP,
+           time.time(),
+           datetime.datetime.now())
+    fileUtil.Save(8209,data)
 
 def SSEL1QuoteCallBack(SSEL1Quote):
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\
@@ -68,64 +129,6 @@ def SSEL1QuoteCallBack(SSEL1Quote):
             SSEL1Quote.PremiumRate,
             SSEL1Quote.ChangeRatio)
     fileUtil.Save(4112, data)
-
-# 上海分时数据,额外增加receive_unix
-def SSEL1MinCallBack(Level1Min):
-    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
-           Level1Min.SecurityID,
-           Level1Min.TradeTime,
-           Level1Min.ProductID,
-           Level1Min.Symbol,
-           Level1Min.TradingDate,
-           Level1Min.TradingTime,
-           Level1Min.UNIX,
-           Level1Min.Market,
-           Level1Min.ShortName.decode("UTF8"),
-           Level1Min.OpenPrice,
-           Level1Min.HighPrice,
-           Level1Min.LowPrice,
-           Level1Min.ClosePrice,
-           Level1Min.Volume,
-           Level1Min.Amount,
-           Level1Min.BenchMarkOpenPrice,
-           Level1Min.Change,
-           Level1Min.ChangeRatio,
-           Level1Min.TotalVolume,
-           Level1Min.VWAP,
-           Level1Min.CumulativeLowPrice,
-           Level1Min.CumulativeHighPrice,
-           Level1Min.CumulativeVWAP,
-           str(time.time()))
-    fileUtil.Save(4113, data)
-
-# 深圳分时数据,额外增加receive_unix
-def SZSEL1MinCallBack(Level1Min):
-    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
-           Level1Min.SecurityID,
-           Level1Min.TradeTime,
-           Level1Min.ProductID,
-           Level1Min.Symbol,
-           Level1Min.TradingDate,
-           Level1Min.TradingTime,
-           Level1Min.UNIX,
-           Level1Min.Market,
-           Level1Min.ShortName.decode("UTF8"),
-           Level1Min.OpenPrice,
-           Level1Min.HighPrice,
-           Level1Min.LowPrice,
-           Level1Min.ClosePrice,
-           Level1Min.Volume,
-           Level1Min.Amount,
-           Level1Min.BenchMarkOpenPrice,
-           Level1Min.Change,
-           Level1Min.ChangeRatio,
-           Level1Min.TotalVolume,
-           Level1Min.VWAP,
-           Level1Min.CumulativeLowPrice,
-           Level1Min.CumulativeHighPrice,
-           Level1Min.CumulativeVWAP,
-           str(time.time()))
-    fileUtil.Save(8209, data)
 
 def SSEIOL1QuoteCallBack(SSEIOL1Quote):
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},\
