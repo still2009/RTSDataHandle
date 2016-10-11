@@ -5,7 +5,7 @@ import time
 from db import *
 
 # 上海分时数据,额外增加receive_unix
-def SSEL1MinCallBack(Level1Min):
+def DB_SSEL1MinCallBack(Level1Min):
     rowData = {}
     fields = [f[0] for f in Level1Min._fields_]
     fields.append('ReceiveUNIX')
@@ -37,7 +37,7 @@ def SSEL1MinCallBack(Level1Min):
     save(data)
 
 # 深圳分时数据,额外增加receive_unix
-def SZSEL1MinCallBack(Level1Min):
+def DB_SZSEL1MinCallBack(Level1Min):
     a = Level1Min['Freq']
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
            Level1Min.SecurityID,
