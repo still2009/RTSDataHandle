@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mssql import INTEGER,VARCHAR,DATE,DATETIME,DECIMAL,NVARCHAR,BIGINT
 import time,datetime
 from DSPStruct import Level1Min
-import codecs
+import codecs,platform
 from file import FIELDS
 
 Base = declarative_base()
@@ -13,7 +13,9 @@ REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13:1433/GTA_UPDATE'
 TEST_REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13:1433/TEST'
 TEST_LOCAL_CONN = 'mssql+pyodbc://admin:c0mm0n-adm1n@finx_test'
 LOCAL_CONN = 'mssql+pyodbc://admin:c0mm0n-adm1n@finx'
-engine = create_engine(REMOTE_CONN)
+CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
+engine = create_engine(CONN)
+
 Session = sessionmaker(bind=engine)
 
 class MinuteDataModel(Base):
@@ -103,7 +105,9 @@ def test():
     DATA = '''60,204000002126,1476151500000,4294967295,b'000857',b'2016-10-11',b'2016-10-11 10:05:00.000',1476151500000,b'SSE',500医药,13255.13,13256.477,13255.13,13255.299,12285.0,25170952.0,13263.522,-0.812,-0.0001,662841,0.0,13233.555,13273.289,0.0,{},{}'''
     DATA = DATA.format(time.time(),datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     DATA = DATA.decode('utf-8')
-    testEngine = create_engine(TEST_REMOTE_CONN)
+    CONN = TEST_REMOTE_CONN if platform.system() == 'Darwin' else TEST_LOCAL_CONN
+    engine = create_engine(CONN)
+    testEngine = create_engine(CONN)
     TSession = sessionmaker(bind=testEngine)
     createTable(testEngine)
     save(DATA,TSession())
