@@ -72,7 +72,6 @@ def Str2MinuteData(data):
             rowData[key] = float(value)
         else:
             rowData[key] = value
-    print(rowData)
     return MinuteDataModel(**rowData)
 
 def importFromCSV(fname,session):

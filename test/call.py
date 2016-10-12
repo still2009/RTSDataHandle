@@ -30,7 +30,7 @@ def SSEL1MinCallBack(Level1Min):
            Level1Min.CumulativeHighPrice,
            Level1Min.CumulativeVWAP,
            time.time(),
-           datetime.datetime().now().strftime('%Y-%m-%d %H:%M:%S'))
+           datetime.datetime().now())
     fileUtil.Save(4113,Level1Min.Freq,data)
 
 # 深圳分时数据,额外增加receive_unix,receiveDate
@@ -60,5 +60,5 @@ def SZSEL1MinCallBack(Level1Min):
            Level1Min.CumulativeHighPrice,
            Level1Min.CumulativeVWAP,
            time.time(),
-           datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+           datetime.datetime.now())
     fileUtil.Save(8209,Level1Min.Freq,data)

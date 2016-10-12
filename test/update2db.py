@@ -2,10 +2,12 @@
 from TDPS import *
 from DSPStruct import *
 from db import *
+from datetime import datetime as dt
 
 # 分时数据,额外增加receive_unix,ReceiveDate
 def DB_MinCallBack(Level1Min):
-    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
+    rd = dt.now().strftime('%Y-%m-%d %H:%M:%S')
+    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
            Level1Min.SecurityID,
            Level1Min.TradeTime,
            Level1Min.ProductID,
@@ -30,7 +32,7 @@ def DB_MinCallBack(Level1Min):
            Level1Min.CumulativeHighPrice,
            Level1Min.CumulativeVWAP,
            time.time(),
-           datetime.datetime().now().strftime('%Y-%m-%d %H:%M:%S'))
+           rd)
     save(data,getSession())
 
 # 上海单支订阅
@@ -64,10 +66,12 @@ def unSubAll(conn):
     conn.RegSZSEL1MinCallBack(DB_MinCallBack)
     for freq in (60,300,600,900,1800,3600):
         conn.unSubscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
-if __name__ == '__main__':
+def begin():
     conn = TDPS()
     print('连接成功')
     getAllSSEL1(conn)
     print('上海订阅成功')
     getAllSZSEL1(conn)
     print('深圳订阅成功')
+if __name__ == '__main__':
+    begin()
