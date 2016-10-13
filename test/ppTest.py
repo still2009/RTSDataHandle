@@ -17,7 +17,7 @@ def IsPrime(n):
         i += 1
     return True
 def SumPrimes(n):
-    for i in xrange(15):
+    for i in range(15):
         sum([x for x in xrange(2,n) if IsPrime(x)])
     """计算从2-n之间的所有素数之和"""
     return sum([x for x in xrange(2,n) if IsPrime(x)])
