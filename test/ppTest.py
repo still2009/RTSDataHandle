@@ -24,8 +24,8 @@ def SumPrimes(n):
 inputs = (100000, 100100, 100200, 100300, 100400, 100500, 100600, 100700)
 start_time = time.time()
 for input in inputs:
-    print SumPrimes(input)
-print '单线程执行，总耗时', time.time() - start_time, 's'
+    print(SumPrimes(input))
+print('单线程执行，总耗时', time.time() - start_time, 's')
 # tuple of all parallel python servers to connect with
 ppservers = ()
 #ppservers = ("10.0.0.1",)
@@ -36,10 +36,10 @@ if len(sys.argv) > 1:
 else:
     # Creates jobserver with automatically detected number of workers
     job_server = pp.Server(ppservers=ppservers)
-print "pp 可以用的工作核心线程数", job_server.get_ncpus(), "workers"
+print("pp 可以用的工作核心线程数", job_server.get_ncpus(), "workers")
 start_time = time.time()
 jobs = [(input, job_server.submit(SumPrimes,(input,), (IsPrime,), ("math",))) for input in inputs]
 for input, job in jobs:
-    print "Sum of primes below", input, "is", job()
-print "多线程下执行耗时: ", time.time() - start_time, "s"
-job_server.print_stats()
+    print("Sum of primes below", input, "is", job())
+print("多线程下执行耗时: ", time.time() - start_time, "s")
+job_server(print_stats())
