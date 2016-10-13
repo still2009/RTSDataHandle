@@ -18,9 +18,9 @@ def IsPrime(n):
     return True
 def SumPrimes(n):
     for i in range(15):
-        sum([x for x in xrange(2,n) if IsPrime(x)])
+        sum([x for x in range(2,n) if IsPrime(x)])
     """计算从2-n之间的所有素数之和"""
-    return sum([x for x in xrange(2,n) if IsPrime(x)])
+    return sum([x for x in range(2,n) if IsPrime(x)])
 inputs = (100000, 100100, 100200, 100300, 100400, 100500, 100600, 100700)
 start_time = time.time()
 for input in inputs:
