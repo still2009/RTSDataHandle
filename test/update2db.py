@@ -1,12 +1,13 @@
 # coding=UTF-8
 from TDPS import *
 from DSPStruct import *
-from db import *
+from db_process import *
 from datetime import datetime as dt
 
 # 分时数据,额外增加receive_unix,ReceiveDate
 def DB_MinCallBack(Level1Min):
-    rd = dt.now().strftime('%Y-%m-%d %H:%M:%S')
+    nowUNIX = time.time()
+    rd = dt.fromtimestamp(nowUNIX).strftime('%Y-%m-%d %H:%M:%S')
     data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
            Level1Min.SecurityID,
            Level1Min.TradeTime,
@@ -33,7 +34,8 @@ def DB_MinCallBack(Level1Min):
            Level1Min.CumulativeVWAP,
            time.time(),
            rd)
-    save(data,getSession())
+    td = finalThread if Level1Min.UNIX <= int(1000*nowUNIX) else middleThread
+    td.add(data)
 
 # 上海单支订阅
 def getSSEL1(conn,code):
@@ -68,6 +70,7 @@ def unSubAll(conn):
         conn.unSubscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
 def begin():
     conn = TDPS()
+    createTable(engine)
     print('连接成功')
     getAllSSEL1(conn)
     print('上海订阅成功')
