@@ -4,6 +4,11 @@ from DSPStruct import *
 from db_process import *
 from datetime import datetime as dt
 
+# 初始化2个线程
+finalThread = ConsumeThread('final',Session)
+middleThread = ConsumeThread('middle',Session)
+finalThread.start()
+middleThread.start()
 # 分时数据,额外增加receive_unix,ReceiveDate
 def DB_MinCallBack(Level1Min):
     nowUNIX = time.time()
