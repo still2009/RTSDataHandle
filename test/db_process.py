@@ -17,10 +17,9 @@ class ConsumeThread(threading.Thread):
         self.delay = 15 if self.Priority == 1 else 150
         self.dbSession = Session()
     def run(self):
-         while not self.thread_stop:
-             while True:
-                time.sleep(self.delay)
-                self.dbSession.commit()
+         while True:
+            time.sleep(self.delay)
+            self.dbSession.commit()
     def add(self,data):
         self.dbSession.add(Str2MinuteData(data))
 
