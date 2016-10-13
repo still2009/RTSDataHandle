@@ -3,12 +3,16 @@
 from update2db import *
 import time, os, sched
 from datetime import datetime
-# 第一个参数确定任务的时间，返回从某个特定的时间到现在经历的秒数
-# 第二个参数以某种人为的方式衡量时间
+import sys
+if len(sys.argv) != 5:
+    print('请输入定时参数,例如 9 25 30 1 代表每天9点25分30s执行，周期为1s')
+    exit(0)
+h,m,s,r = int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4])
 schedule = sched.scheduler(time.time, time.sleep)
 
 def perform_command(cmd, inc):
     begin()
+    # print('haha')
     schedule.enter(inc, 0, perform_command, (cmd, inc))
 
 def timming_exe(cmd, inc = 3):
@@ -20,9 +24,9 @@ def timming_exe(cmd, inc = 3):
 
 print("每日9:25开始抓取数据")
 d = datetime.now()
-dd = datetime(year=d.year,month=d.month,day=d.day,hour=9,minute=25)
+dd = datetime(year=d.year,month=d.month,day=d.day,hour=h,minute=m,second=s)
 delta = (dd-d).seconds
-roundDelay =  3600*24
+roundDelay =  r
 print('此次任务开始于 %s 即 %ss 后开始,周期为 %ss' % (dd,delta,roundDelay))
 time.sleep(delta)
 timming_exe("echo %time%", roundDelay)
