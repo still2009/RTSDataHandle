@@ -78,7 +78,5 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         print('usage: python update2db.py 60\n60 即分时频率秒数为60')
         exit(0)
-    fq = None
-    with int(sys.argv[1]) as fq:
-        if freq != None:
-            ASub(TDPS(),freq=fq)
+    fq = int(sys.argv[1])
+    ASub(TDPS(),freq=fq)
