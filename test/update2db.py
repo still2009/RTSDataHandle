@@ -9,6 +9,7 @@ import sys
 finalThread = ConsumeThread('final',Session)
 middleThread = ConsumeThread('middle',Session)
 itemCounter = Counter()
+itemCounter.start()
 finalThread.start()
 middleThread.start()
 # 分时数据,额外增加receive_unix,ReceiveDate

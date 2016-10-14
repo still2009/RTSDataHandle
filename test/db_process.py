@@ -10,6 +10,7 @@ class Counter(threading.Thread):
         threading.Thread.__init__(self)
         self.count = 0
     def run(self):
+        print('counter started')
         while True:
             time.sleep(5)
             print('接收到的数据条目数：%s' % self.count)
