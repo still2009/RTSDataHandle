@@ -14,6 +14,7 @@ TEST_REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13:1433/TEST'
 TEST_LOCAL_CONN = 'mssql+pyodbc://admin:c0mm0n-adm1n@finx_test'
 LOCAL_CONN = 'mssql+pyodbc://admin:c0mm0n-adm1n@finx'
 CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
+print('db conn is: %s' % CONN)
 engine = create_engine(CONN)
 Session = sessionmaker(bind=engine)
 
