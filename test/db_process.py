@@ -5,6 +5,19 @@ import time
 from db import *
 import logging
 
+class Counter(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.count = 0
+    def run(self):
+        while True:
+            time.sleep(5)
+            print('接收到的数据条目数：%s' % self.count)
+    def reset(self):
+        self.count = 0
+    def step(self):
+        self.count += 1
+
 class ConsumeThread(threading.Thread):
     '''数据消费线程'''
     def __init__(self,type,SessionClass,finalDelay=35,middleDelay=15):

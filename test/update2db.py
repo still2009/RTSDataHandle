@@ -8,6 +8,7 @@ import sys
 # 初始化2个线程
 finalThread = ConsumeThread('final',Session)
 middleThread = ConsumeThread('middle',Session)
+itemCounter = Counter()
 finalThread.start()
 middleThread.start()
 # 分时数据,额外增加receive_unix,ReceiveDate
@@ -41,6 +42,7 @@ def DB_MinCallBack(Level1Min):
            time.time(),
            rd)
     td = finalThread if Level1Min.UNIX <= int(1000*nowUNIX) else middleThread
+    itemCounter.step()
     td.add(data)
 
 # 上海单支订阅
