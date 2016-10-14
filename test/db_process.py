@@ -3,14 +3,18 @@ import threading
 import time
 from db import *
 import logging
+
+logFname = 'thread_%s.log' % datetime.datetime.now().strftime('%y_%m_%d-%H:%M:%S')
 logging.basicConfig(level=logging.INFO,
                 format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                 datefmt='%b %d  %H:%M:%S',
-                filename='thread.log',
-                )
+                filename=logFname,
+                filemode='w')
+def log(txt):
+    logging.info(txt)
 class ConsumeThread(threading.Thread):
     '''数据消费线程'''
-    def __init__(self,type,SessionClass,finalDelay=15,middleDelay=70):
+    def __init__(self,type,SessionClass,finalDelay=35,middleDelay=15):
         '''
         type 代表线程类型，有两种：
         1. 最终分时数据 -> final
@@ -25,21 +29,22 @@ class ConsumeThread(threading.Thread):
 
         self.AddFlag = True
     def run(self):
-        logging.info('p:%s Started' % self.Priority)
+        log('p:%s Started' % self.Priority)
         while True:
             time.sleep(self.delay)
             # 开始换session
             self.AddFlag = False
             sLen = len(self.dbSession.new)
             if sLen <= 0:
-                logging.info('p-%s empty!!' % self.Priority)
+                log('p-%s empty!!' % self.Priority)
                 continue
             s = self.dbSession
             self.dbSession = self.SessionClass()
             self.AddFlag = True
             # 换session成功
+            log('p:%s is commiting %s items' % (self.Priority,sLen))
             s.commit()
-            logging.info('p:%s commited %s items' % (self.Priority,sLen))
+            log('p:%s commited %s items' % (self.Priority,sLen))
             s.close()
     def add(self,data):
         while True:
