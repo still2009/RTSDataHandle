@@ -3,6 +3,7 @@ from TDPS import *
 from DSPStruct import *
 from db_process import *
 from datetime import datetime as dt
+import sys
 
 # 初始化2个线程
 finalThread = ConsumeThread('final',Session)
@@ -54,32 +55,30 @@ def getSZSEL1(conn,code):
     conn.RegSZSEL1MinCallBack(DB_MinCallBack)
     for freq in (60,300,600,900,1800,3600):
         conn.Subscribe(code,DSPStruct.EU_SZSEL1Min,freq)
-# 上海全部订阅
-def getAllSSEL1(conn):
-    '''上海证券交易所分时数据'''
+# 综合数据订阅函数
+def ASub(conn,code=b'*',freq=-1,market='A'):
+    freqs = [freq] if freq != -1 else [60,300,600,900,1800,3600]
+    if market == 'A' or market == 'SH':
+        for freq in freqs:
+            conn.RegSSEL1MinCallBack(DB_MinCallBack) # 上海回调注册
+            conn.Subscribe(code,DSPStruct.EU_SSEL1Min,freq)
+    if market == 'A' or market == 'SZ':
+        for freq in freqs:
+            conn.RegSZSEL1MinCallBack(DB_MinCallBack) # 深圳回调注册
+            conn.Subscribe(code,DSPStruct.EU_SSEL1Min,freq)
+# 综合数据退订函数
+def AUnSub(conn):
     conn.RegSSEL1MinCallBack(DB_MinCallBack)
-    for freq in (60,300,600,900,1800,3600):
-        conn.Subscribe(b'*',DSPStruct.EU_SSEL1Min,freq)
-# 深圳全部订阅
-def getAllSZSEL1(conn):
-    '''深圳证券交易所分时数据'''
-    conn.RegSZSEL1MinCallBack(DB_MinCallBack)
-    for freq in (60,300,600,900,1800,3600):
-        conn.Subscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
-def unSubAll(conn):
-    conn.RegSSEL1MinCallBack(DB_MinCallBack)
-    for freq in (60,300,600,900,1800,3600):
-        conn.unSubscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
     conn.RegSZSEL1MinCallBack(DB_MinCallBack)
     for freq in (60,300,600,900,1800,3600):
         conn.unSubscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
 def begin():
-    conn = TDPS()
-    createTable(engine)
-    print('连接成功')
-    getAllSSEL1(conn)
-    print('上海订阅成功')
-    getAllSZSEL1(conn)
-    print('深圳订阅成功')
+    ASub(TDPS(),freq=60)
 if __name__ == '__main__':
-    begin()
+    if len(sys.argv) != 2:
+        print('usage: python update2db.py 60\n60 即分时频率秒数为60')
+        exit(0)
+    fq = None
+    with int(sys.argv[1]) as fq:
+        if freq != None:
+            ASub(TDPS(),freq=fq)
