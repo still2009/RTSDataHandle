@@ -1,0 +1,7 @@
+bugs:
+2016-10-14:
+  【问题】itemCounter的值一段时间后不变了
+  【疑问】不产数据了？callback没再调用Counter.step()了，为啥？被阻塞？线程问题？
+
+TODO list:
+  数据check

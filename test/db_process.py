@@ -4,6 +4,7 @@ import threading
 import time
 from db import *
 import logging
+import sys
 
 class Counter(threading.Thread):
     def __init__(self):
@@ -12,8 +13,9 @@ class Counter(threading.Thread):
     def run(self):
         print('counter started')
         while True:
-            time.sleep(5)
-            print('接收到的数据条目数：%s' % self.count)
+            time.sleep(1)
+            sys.stdout.write('\r接收到的数据条目数：%s' % self.count)
+            sys.stdout.flush()
     def reset(self):
         self.count = 0
     def step(self):
