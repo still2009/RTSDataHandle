@@ -4,7 +4,7 @@ import time
 from db import *
 import logging
 
-logFname = 'thread_%s.log' % datetime.datetime.now().strftime('%y_%m_%d-%H:%M:%S')
+logFname = 'thread_%s.log' % datetime.datetime.now().strftime('%y%m%d_%H_%M_%S')
 logging.basicConfig(level=logging.INFO,
                 format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                 datefmt='%b %d  %H:%M:%S',
