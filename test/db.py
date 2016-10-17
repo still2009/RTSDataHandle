@@ -100,6 +100,10 @@ def save(data,session):
     row = Str2MinuteData(data)
     session.add(row)
     session.commit()
+
+
+createTable(engine)
+
 if __name__ == '__main__':
     createTable(engine)
     pass
