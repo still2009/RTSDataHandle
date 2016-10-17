@@ -86,8 +86,9 @@ def end():
     itemCounter.stop()
     finalThread.stop()
     middleThread.stop()
-    thread = threading.current_thread()
-    thread.stop()
+    print('子线程全部关闭')
+    AUnSub(TDPS())
+    print('全部退订')
 if __name__ == '__main__':
     fq = 0
     if len(sys.argv) != 2:

@@ -3,6 +3,7 @@
 from update2db import *
 import time, os, sched
 from datetime import datetime
+from datetime import timedelta
 import sys
 
 h,m,s=9,25,0
@@ -18,7 +19,7 @@ schedule = sched.scheduler(time.time, time.sleep)
 def perform_begin():
     print('begin')
     begin()
-    schedule.enter(getDelta(h2,m2,s2), 0, perform_end,())
+    schedule.enter(getDelta(h2,m2,s2,False), 0, perform_end,())
 
 def perform_end():
     print('end')
@@ -30,11 +31,14 @@ def timming_exe(delay):
     schedule.enter(delay, 0, perform_begin,())
     # 持续运行，直到计划时间队列变成空为止
     schedule.run()
-def getDelta(h,m,s):
-    d = datetime.now()
+def getDelta(h,m,s,tommorow=True):
+    do = datetime.now()
+    d = do
+    if tommorow:
+        d = do+timedelta(days=1)
     dd = datetime(year=d.year,month=d.month,day=d.day,hour=h,minute=m,second=s)
     delta = (dd-d).seconds
-    print('当前时间-->%s\n执行时间-->%s\n即%s秒之后执行\n' % (d,dd,delta))
+    print('当前时间-->%s\n执行时间-->%s\n即%s秒之后执行\n' % (do,dd,delta))
     return delta
 
 if __name__ == '__main__':

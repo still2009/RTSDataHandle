@@ -10,12 +10,16 @@ class Counter(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.count = 0
+        self.runningFlag = True
     def run(self):
         print('counter started')
-        while True:
+        while self.runningFlag:
             time.sleep(1)
             sys.stdout.write('\r接收到的数据条目数：%s' % self.count)
             sys.stdout.flush()
+    def stop(self):
+        self.runningFlag = False
+        print('收到线程推出制定,最终数据条数为%s条' % self.count)
     def reset(self):
         self.count = 0
     def step(self):
@@ -31,6 +35,7 @@ class ConsumeThread(threading.Thread):
         最终分时数据将会被优先写入数据库
         '''
         threading.Thread.__init__(self)
+        self.runningFlag = True
         self.Priority = 1 if type == 'final' else 0
         self.delay = finalDelay if self.Priority == 1 else middleDelay
         self.SessionClass = SessionClass
@@ -52,7 +57,7 @@ class ConsumeThread(threading.Thread):
         所以需要新的session来负责，故有换session的操作。
         '''
         self.log('p:%s Started' % self.Priority)
-        while True:
+        while self.runningFlag:
             time.sleep(self.delay)
             # 判断是否为空，无需换session
             sLen = len(self.dbSession.new)
@@ -74,3 +79,9 @@ class ConsumeThread(threading.Thread):
             if self.AddFlag:
                 self.dbSession.add(Str2MinuteData(data))
                 break
+    def stop(self):
+        self.runningFlag = False
+        time.sleep(1)
+        sLen = len(self.dbSession.new)
+        print('发出停止线程的指令,正在进行最后的commit，条数为%s条' % sLen)
+        self.dbSession.commit()
