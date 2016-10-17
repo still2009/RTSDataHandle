@@ -78,8 +78,10 @@ def AUnSub(conn):
 def begin():
     ASub(TDPS(),freq=60)
 if __name__ == '__main__':
+    fq = 0
     if len(sys.argv) != 2:
-        print('usage: python update2db.py 60\n60 即分时频率秒数为60')
-        exit(0)
-    fq = int(sys.argv[1])
+        print('usage: python update2db.py 60\n60 即分时频率秒数为60\n默认为60')
+        fq = 60
+    else:
+        fq = int(sys.argv[1])
     ASub(TDPS(),freq=fq)
