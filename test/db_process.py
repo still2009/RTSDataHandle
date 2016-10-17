@@ -46,6 +46,11 @@ class ConsumeThread(threading.Thread):
     def log(self,txt):
         self.logger.info(txt)
     def run(self):
+        '''
+        定时commit session中待提交的数据事务
+        由于commit本身需要时间，而此时CallBack依然会add数据
+        所以需要新的session来负责，故有换session的操作。
+        '''
         self.log('p:%s Started' % self.Priority)
         while True:
             time.sleep(self.delay)

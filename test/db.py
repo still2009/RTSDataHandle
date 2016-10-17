@@ -91,7 +91,7 @@ def importFromCSV(fname,session):
             session.add(row)
         session.commit()
 
-def createTable(engine):
+def createTable():
     '''创建表格'''
     Base.metadata.create_all(engine)
 def getSession():
@@ -100,10 +100,3 @@ def save(data,session):
     row = Str2MinuteData(data)
     session.add(row)
     session.commit()
-
-
-createTable(engine)
-
-if __name__ == '__main__':
-    createTable(engine)
-    pass

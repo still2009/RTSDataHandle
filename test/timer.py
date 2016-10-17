@@ -4,29 +4,38 @@ from update2db import *
 import time, os, sched
 from datetime import datetime
 import sys
-if len(sys.argv) != 5:
-    print('请输入定时参数,例如 9 25 30 1 代表每天9点25分30s执行，周期为1s')
-    exit(0)
-h,m,s,r = int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4])
+
+h,m,s=9,25,0
+h2,m2,s2=15,5,0
+if len(sys.argv) == 4:
+    h,m,s,h2,m2,s2= int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),\
+    int(sys.argv[4]),int(sys.argv[5]),int(sys.argv[6])
+else:
+    print('未输入定时参数,例如 9 25 0 15 10 0代表每天9点25分0s执行,15点10分0秒结束\n-->使用默认参数执行\n-->必须使用24小时制')
+
 schedule = sched.scheduler(time.time, time.sleep)
 
-def perform_command(cmd, inc):
+def perform_begin():
+    print('begin')
     begin()
-    # print('haha')
-    schedule.enter(inc, 0, perform_command, (cmd, inc))
+    schedule.enter(getDelta(h2,m2,s2), 0, perform_end,())
 
-def timming_exe(cmd, inc = 3):
+def perform_end():
+    print('end')
+    end()
+    schedule.enter(getDelta(h,m,s), 0, perform_begin,())
+
+def timming_exe(delay):
     # enter用来安排某事件的发生时间，从现在起第n秒开始启动
-    schedule.enter(inc, 0, perform_command, (cmd, inc))
+    schedule.enter(delay, 0, perform_begin,())
     # 持续运行，直到计划时间队列变成空为止
     schedule.run()
+def getDelta(h,m,s):
+    d = datetime.now()
+    dd = datetime(year=d.year,month=d.month,day=d.day,hour=h,minute=m,second=s)
+    delta = (dd-d).seconds
+    print('当前时间-->%s\n执行时间-->%s\n即%s秒之后执行\n' % (d,dd,delta))
+    return delta
 
-
-print("每日9:25开始抓取数据")
-d = datetime.now()
-dd = datetime(year=d.year,month=d.month,day=d.day,hour=h,minute=m,second=s)
-delta = (dd-d).seconds
-roundDelay =  r
-print('此次任务开始于 %s 即 %ss 后开始,周期为 %ss' % (dd,delta,roundDelay))
-time.sleep(delta)
-timming_exe("echo %time%", roundDelay)
+if __name__ == '__main__':
+    timming_exe(getDelta(h,m,s))

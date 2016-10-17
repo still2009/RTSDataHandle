@@ -4,14 +4,12 @@ from DSPStruct import *
 from db_process import *
 from datetime import datetime as dt
 import sys
+from threading import current_thread
 
 # 初始化2个线程
 finalThread = ConsumeThread('final',Session)
 middleThread = ConsumeThread('middle',Session)
 itemCounter = Counter()
-itemCounter.start()
-finalThread.start()
-middleThread.start()
 # 分时数据,额外增加receive_unix,ReceiveDate
 def DB_MinCallBack(Level1Min):
     nowUNIX = time.time()
@@ -75,8 +73,21 @@ def AUnSub(conn):
     conn.RegSZSEL1MinCallBack(DB_MinCallBack)
     for freq in (60,300,600,900,1800,3600):
         conn.unSubscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
-def begin():
-    ASub(TDPS(),freq=60)
+def begin(f=60):
+    print('任务开始执行...')
+    itemCounter.start()
+    finalThread.start()
+    middleThread.start()
+    print('创建数据库')
+    createTable()
+    ASub(TDPS(),freq=f)
+def end():
+    print('任务结束执行...')
+    itemCounter.stop()
+    finalThread.stop()
+    middleThread.stop()
+    thread = threading.current_thread()
+    thread.stop()
 if __name__ == '__main__':
     fq = 0
     if len(sys.argv) != 2:
@@ -84,4 +95,4 @@ if __name__ == '__main__':
         fq = 60
     else:
         fq = int(sys.argv[1])
-    ASub(TDPS(),freq=fq)
+    begin(fq)
