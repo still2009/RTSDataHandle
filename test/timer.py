@@ -7,7 +7,7 @@ import sys
 
 h,m,s=9,25,0
 h2,m2,s2=15,5,0
-if len(sys.argv) == 4:
+if len(sys.argv) == 7:
     h,m,s,h2,m2,s2= int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]),\
     int(sys.argv[4]),int(sys.argv[5]),int(sys.argv[6])
 else:
