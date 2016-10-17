@@ -49,12 +49,13 @@ class ConsumeThread(threading.Thread):
         self.log('p:%s Started' % self.Priority)
         while True:
             time.sleep(self.delay)
-            # 开始换session
-            self.AddFlag = False
+            # 判断是否为空，无需换session
             sLen = len(self.dbSession.new)
             if sLen <= 0:
                 self.log('p-%s empty!!' % self.Priority)
                 continue
+            # 开始换session
+            self.AddFlag = False
             s = self.dbSession
             self.dbSession = self.SessionClass()
             self.AddFlag = True
