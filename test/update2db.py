@@ -63,10 +63,12 @@ def ASub(conn,code=b'*',freq=-1,market='A'):
         for freq in freqs:
             conn.RegSSEL1MinCallBack(DB_MinCallBack) # 上海回调注册
             conn.Subscribe(code,DSPStruct.EU_SSEL1Min,freq)
+        print('上海订阅成功')
     if market == 'A' or market == 'SZ':
         for freq in freqs:
             conn.RegSZSEL1MinCallBack(DB_MinCallBack) # 深圳回调注册
             conn.Subscribe(code,DSPStruct.EU_SSEL1Min,freq)
+        print('深圳订阅成功')
 # 综合数据退订函数
 def AUnSub(conn):
     conn.RegSSEL1MinCallBack(DB_MinCallBack)
