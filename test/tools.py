@@ -47,7 +47,7 @@ def processCsv(fname):
     f = codecs.open(fname,'r','utf-8')
     print('读取%s中..' % fname)
     for line in f.readlines():
-        if line.startswith('#'):
+        if line.find('#') == 0:
             continue
         else:
             rows.append(formatConvert(line))
