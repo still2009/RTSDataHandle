@@ -38,23 +38,35 @@ def formatConvert(dataStr):
 
 def processCsv(fname):
     '''
-    读取单个csv文件，并将每一行数据转换为model对象
+    读取单个csv文件，并将每一行数据转换为model对象并commit到数据库
     要求单个csv文件内只出现一个月的数据,全文月份唯一
     返回：
-        resMap : month-rows的map
+        true
     '''
-    rows = []
+    REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13/%s'
+    LOCAL_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@localhost/%s'
+    CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
+    print('CONN is %s' % CONN)
+    engine = create_engine(CONN % (dbNameHis % '201212'))
+    HistoryDataModel.__table__.create(engine,checkfirst=True)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
     f = codecs.open(fname,'r','utf-8')
-    print('读取%s中..' % fname)
+    print('导入%s中..' % fname)
     for line in f.readlines():
         if line.find('#') != -1:
             continue
         else:
-            rows.append(formatConvert(line))
-    print('读取%s结束..' % fname)
-    if len(rows) == 0:
-        return None
-    return {rows[0].TDATE[:-2]:rows}
+            obj = formatConvert(line)
+            if obj != None:
+                session.add(obj)
+                if len(session.new) == 5000:
+                    session.commit()
+    session.commit()
+    session.close()
+    print('导入%s结束..' % fname)
+    return True
 
 def processCsvDir(csvPath):
     '''
@@ -72,67 +84,9 @@ def processCsvDir(csvPath):
     results = pool.map(processCsv,fileList)
     return results
 
-def processDB():
-    '''
-    处理数据库相关的事务
-    根据数据的日期信息决定commit到的数据库和表
-    '''
-    results = processCsvDir('./test')
-    months = []
-    for i in results:
-        for k in i:
-            months.append(k)
-    months = set(tuple(months))
-    LOCAL_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13/%s'
-    engineMap = {}
-    tableMap = {}
-    SessionMap = {}
-    for i in months:
-        engineMap[i] = create_engine(LOCAL_CONN % (dbNameHis % i))
-        SessionMap[i] = sessionmaker(bind=engineMap[i])
-        for market in ('SSE','SZSE'):
-            tableMap[i][market] = createHisTable(tbNameHis % (market,i))
-    for i in results:
-        for k in i:
-            session = SessionMap[k]()
-            session.add_all(i[k])
-            try:
-                session.commit()
-            except :
-                print('插入的数值重复导致异常(不满足逐渐约束)')
-                continue
-def intoDB(csvDir='./test'):
-    results = processCsvDir(csvDir)
-    REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13/%s'
-    LOCAL_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@localhost/%s'
-    CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
-    print('CONN is %s' % CONN)
-    engine = create_engine(CONN % (dbNameHis % '201212'))
-    HistoryDataModel.__table__.create(engine,checkfirst=True)
-    Session = sessionmaker(bind=engine)
-    for i in results:
-        res = i
-        if res == None:
-            continue
-        for k in res:
-            session = Session()
-            session.add_all(res[k])
-            try:
-                session.commit()
-            except:
-                print('出现commit异常，主键约束触发，继续')
-                continue
-            session.close()
-def test():
-    print(os.getcwd())
-    r = processCsvDir(os.path.join(os.getcwd(),'test'))
-    print(len(r))
-    for i in r:
-        for k in i:
-            print('%s - %s' % (k,len(i[k])))
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        print('使用默认csv路径，非测试环境下禁止使用！,请务必指定目录')
-        intoDB()
+        print('请务必指定csv文件的目录')
+        exit(0)
     else:
-        intoDB(sys.argv[1])
+        processCsvDir(sys.argv[1])
