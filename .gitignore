@@ -4,3 +4,5 @@ ipconfig.txt
 /2016*
 *.pyc
 *.log
+/.idea
+.idea/*.xml

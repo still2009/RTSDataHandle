@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mssql import INTEGER,VARCHAR,DATE,DATETIME,DECIMAL,NVARCHAR,BIGINT
 import sys,time,datetime
 from DSPStruct import Level1Min
-import codecs,platform
+import codecs,platform,os
 from file import FIELDS
 
 Base = declarative_base()
@@ -18,8 +18,58 @@ print('db conn is: %s' % CONN)
 engine = create_engine(CONN)
 Session = sessionmaker(bind=engine)
 
+class HistoryDataModel(Base):
+    __tablename__ = 'IMPORTED_HIS_DATA'
+    SECCODE = Column(NVARCHAR(length=6),primary_key=True)
+    SECNAME = Column(NVARCHAR(length=20,collation='Chinese_PRC_CI_AS'),primary_key=True)
+    TDATE = Column(NVARCHAR(length=10),primary_key=True)
+    MINTIME = Column(NVARCHAR(length=4),primary_key=True)
+    STARTPRC = Column(DECIMAL(precision=9,scale=3))
+    HIGHPRC = Column(DECIMAL(precision=9,scale=3))
+    LOWPRC = Column(DECIMAL(precision=9,scale=3))
+    ENDPRC = Column(DECIMAL(precision=9,scale=3))
+    MINTQ = Column(DECIMAL(precision=12,scale=0))
+    MINTM = Column(DECIMAL(precision=18,scale=3))
+    UNIX = Column(BIGINT)
+    MARKET = Column(NVARCHAR(length=4),primary_key=True)
+
+class HisModelBase(object):
+
+    _mapper = {}
+
+    @staticmethod
+    def model(market,month):
+        tableName = '%sL1_TRDMIN01_%s' % (market,month)
+        className = tableName + '_%s' % os.getpid()
+        ModelClass = HisModelBase._mapper.get(tableName, None)
+        if ModelClass is None:
+            ModelClass = type(className, (Base,), {
+                '__module__' : __name__,
+                '__name__' : className,
+                '__tablename__' : tableName,
+
+                'SECCODE' : Column(NVARCHAR(length=6),primary_key=True),
+                'SECNAME' : Column(NVARCHAR(length=20),primary_key=True),
+                'TDATE' : Column(NVARCHAR(length=10),primary_key=True),
+                'MINTIME' : Column(NVARCHAR(length=4),primary_key=True),
+                'STARTPRC' : Column(DECIMAL(precision=9,scale=3)),
+                'HIGHPRC' : Column(DECIMAL(precision=9,scale=3)),
+                'LOWPRC' : Column(DECIMAL(precision=9,scale=3)),
+                'ENDPRC' : Column(DECIMAL(precision=9,scale=3)),
+                'MINTQ' : Column(DECIMAL(precision=12,scale=0)),
+                'MINTM' : Column(DECIMAL(precision=18,scale=3)),
+                'UNIX' : Column(BIGINT),
+                'MARKET' : Column(NVARCHAR(length=4),primary_key=True)
+            })
+            HisModelBase._mapper[tableName] = ModelClass
+        obj = ModelClass()
+        return obj
+
 class MinuteDataModel(Base):
-    __tablename__ = 'MINUTE_DATA_%s' % datetime.datetime.now().strftime('%Y_%m_%d')
+    '''
+    实时分时数据表 MINUTE_DATA_TODAY 对应的类
+    '''
+    __tablename__ = 'MINUTE_DATA_TODAY'
     DataID = Column(BIGINT,primary_key=True)
     Freq = Column(INTEGER)
     SecurityID = Column(BIGINT)
@@ -46,10 +96,7 @@ class MinuteDataModel(Base):
     CumulativeHighPrice = Column(DECIMAL(precision=9,scale=3))# (9,3)
     CumulativeVWAP = Column(DECIMAL(precision=9,scale=3))# (9,3)
     ReceiveUNIX = Column(DECIMAL(precision=12,scale=2))# 接收到数据时的本地实时间戳
-    ReceiveDate = Column(DATETIME)# 接收到数据时的本地实时间
-
-    def setTableName(tableName):
-        self.__tablename__ = tableName
+    ReceiveTime = Column(DATETIME)# 接收到数据时的本地实时间
 
     def __repr__(self):
         return "<MinData(ShortName='%s', ProductID='%s', SecurityID='%s')>" % \
@@ -61,7 +108,7 @@ def Str2MinuteData(data):
 
     fieldsType = [str(i[1]) for i in Level1Min._fields_]
     fieldsType.append('double')# receive_unix
-    fieldsType.append('xxx')# ReceiveDate
+    fieldsType.append('xxx')# ReceiveTime
     rowData = {}
     for key,value,ft in zip(fields,data.split(','),fieldsType):
         if value.startswith('b'): # 解析出b开头的数据
