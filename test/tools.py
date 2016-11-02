@@ -52,6 +52,8 @@ def processCsv(fname):
         else:
             rows.append(formatConvert(line))
     print('读取%s结束..' % fname)
+    if len(rows) == 0:
+        return None
     return {rows[0].TDATE[:-2]:rows}
 
 def processCsvDir(csvPath):
@@ -110,6 +112,8 @@ def intoDB(csvDir='./test'):
     Session = sessionmaker(bind=engine)
     for i in results:
         res = i
+        if res == None:
+            continue
         for k in res:
             session = Session()
             session.add_all(res[k])
