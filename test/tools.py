@@ -91,7 +91,7 @@ def processDB():
             session.add_all(i[k])
             try:
                 session.commit()
-            except sqlalchemy.exc.IntegrityError,e:
+            except :
                 print('插入的数值重复导致异常(不满足逐渐约束)')
                 continue
 def intoDB(csvDir='./test'):
