@@ -95,10 +95,6 @@ def processDB():
                 print('插入的数值重复导致异常(不满足逐渐约束)')
                 continue
 def intoDB(csvDir='./test'):
-    # 进度条
-    widgets = ['当前rows:',Percentage(),Bar(),' ',SimpleProgress()]
-    bar = ProgressBar(widgets = widgets,maxval=1000).start()
-
     results = processCsvDir(csvDir)
     REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13/%s'
     LOCAL_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@localhost/%s'
@@ -107,8 +103,8 @@ def intoDB(csvDir='./test'):
     engine = create_engine(CONN % (dbNameHis % '201212'))
     HistoryDataModel.__table__.create(engine,checkfirst=True)
     Session = sessionmaker(bind=engine)
-    for i in bar(range(len(results))):
-        res = results[i]
+    for i in results:
+        res = i
         for k in res:
             session = Session()
             session.add_all(res[k])
