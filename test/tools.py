@@ -1,7 +1,6 @@
 # coding:utf-8
 from db import *
 import os,multiprocessing,codecs
-from progressbar import *
 
 dbNameHis = 'GTA_SEL1_TRDMIN_%s'
 tbNameHis = '%sL1_TRDMIN01_%s'
