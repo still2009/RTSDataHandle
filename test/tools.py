@@ -94,12 +94,12 @@ def processDB():
             except sqlalchemy.exc.IntegrityError,e:
                 print('插入的数值重复导致异常(不满足逐渐约束)')
                 continue
-def intoDB():
+def intoDB(csvDir='./test'):
     # 进度条
     widgets = ['当前rows:',Percentage(),Bar(),' ',SimpleProgress()]
     bar = ProgressBar(widgets = widgets,maxval=1000).start()
 
-    results = processCsvDir('./test')
+    results = processCsvDir(csvDir)
     REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13/%s'
     LOCAL_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@localhost/%s'
     CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
@@ -126,4 +126,8 @@ def test():
         for k in i:
             print('%s - %s' % (k,len(i[k])))
 if __name__ == '__main__':
-    intoDB()
+    if len(sys.argv) == 1:
+        print('使用默认csv路径，非测试环境下禁止使用！,请务必指定目录')
+        intoDB()
+    else:
+        intoDB(sys.argv[1])
