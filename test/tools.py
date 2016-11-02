@@ -14,6 +14,10 @@ def formatConvert(dataStr):
     此函数要求传入数据的格式正确
     '''
     fields = dataStr.split(',')
+    l = len(fields)
+    if l < 11:
+        print('csv行切分后列数为%s,异常返回' % l)
+        return None
     s_m = fields[0].split('.')
 
     # 根据market和month 指定ORM类和表的映射
@@ -41,11 +45,13 @@ def processCsv(fname):
     '''
     rows = []
     f = codecs.open(fname,'r','utf-8')
+    print('读取%s中..' % fname)
     for line in f.readlines():
         if line.startswith('#'):
             continue
         else:
             rows.append(formatConvert(line))
+    print('读取%s结束..' % fname)
     return {rows[0].TDATE[:-2]:rows}
 
 def processCsvDir(csvPath):
