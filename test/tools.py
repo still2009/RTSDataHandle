@@ -119,9 +119,9 @@ def intoDB(csvDir='./test'):
                 continue
             session.close()
 def test():
-    print os.getcwd()
+    print(os.getcwd())
     r = processCsvDir(os.path.join(os.getcwd(),'test'))
-    print len(r)
+    print(len(r))
     for i in r:
         for k in i:
             print('%s - %s' % (k,len(i[k])))
