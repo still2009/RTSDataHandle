@@ -3,6 +3,8 @@
 declare @stockName
 set @stockName='沪深300'
 
+declare stockCur cursor for
+select distict ShortName from [dbo].[MINUTE_DATA_2016_10_20]
 -- 条数check 每天241条不同TradingTime的数据
 select count(distinct TradingTime) from [dbo].[MINUTE_DATA_2016_10_20]
 where ShortName=@stockName
