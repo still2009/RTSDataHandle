@@ -6,7 +6,8 @@ from sqlalchemy.dialects.mssql import INTEGER,VARCHAR,DATE,DATETIME,DECIMAL,NVAR
 import sys,time,datetime
 from DSPStruct import Level1Min
 import codecs,platform,os
-from file import FIELDS
+
+FIELDS = 'Freq,SecurityID,TradeTime,ProductID,Symbol,TradingDate,TradingTime,UNIX,Market,ShortName,OpenPrice,HighPrice,LowPrice,ClosePrice,Volume,Amount,BenchMarkOpenPrice,Change,ChangeRatio,TotalVolume,VWAP,CumulativeLowPrice,CumulativeHighPrice,CumulativeVWAP,ReceiveUNIX,ReceiveTime'
 
 Base = declarative_base()
 REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13:1433/GTA_UPDATE'
