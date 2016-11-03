@@ -56,5 +56,3 @@ class DBHelper:
             t.create(cls.getHisDB(dbname),checkfirst=True)
             cls.TBMAP[tbname] = t
         return cls.TBMAP[tbname]
-DBHelper.getHisDB('201010')
-DBHelper.getHisTB('SH','201212')
