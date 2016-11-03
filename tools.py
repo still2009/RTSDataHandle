@@ -1,6 +1,12 @@
 # coding:utf-8
 from db import *
 import os,multiprocessing,codecs
+import logging
+logging.basicConfig(level=logging.INFO,
+                format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                datefmt='%a, %d %b %Y %H:%M:%S',
+                filename='myapp.log',
+                filemode='w')
 
 dbNameHis = 'GTA_SEL1_TRDMIN_%s'
 tbNameHis = '%sL1_TRDMIN01_%s'
@@ -48,11 +54,12 @@ def processCsv(fname):
     CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
     print('CONN is %s' % CONN)
     engine = create_engine(CONN % (dbNameHis % '201212'))
-    HistoryDataModel.__table__.create(engine,checkfirst=True)
+    # HistoryDataModel.__table__.create(engine,checkfirst=True)
     Session = sessionmaker(bind=engine)
     session = Session()
 
     f = codecs.open(fname,'r','utf-8')
+    exceptionCount = 0
     print('导入%s中..' % fname)
     for line in f.readlines():
         if line.find('#') != -1:
@@ -60,11 +67,21 @@ def processCsv(fname):
         else:
             obj = formatConvert(line)
             if obj != None:
-                session.add(obj)
-                if len(session.new) == 5000:
-                    session.commit()
-    session.commit()
+                session.merge(obj)
+                if len(session.new) == 2000:
+                    try:
+                        session.commit()
+                    except Exception as e:
+                        logging.warn(str(os.getpid())+e)
+                        exceptionCount += 1
+                        continue
+    try:
+        session.commit()
+    except Exception as e:
+        logging.warn(str(os.getpid())+e)
+        exceptionCount += 1
     session.close()
+    logging.info('线程%s:异常个数为%s' % (os.getpid(),exceptionCount))
     print('导入%s结束..' % fname)
     return True
 
@@ -87,6 +104,7 @@ def processCsvDir(csvPath):
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         print('请务必指定csv文件的目录')
+        # processCsvDir('.')
         exit(0)
     else:
         processCsvDir(sys.argv[1])
