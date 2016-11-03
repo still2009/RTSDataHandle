@@ -1,7 +1,8 @@
 # coding:utf-8
-from db import *
-import os,multiprocessing,codecs
+import sys,os,multiprocessing,codecs
 import logging
+from DBHelper import *
+
 logging.basicConfig(level=logging.INFO,
                 format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                 datefmt='%a, %d %b %Y %H:%M:%S',
@@ -10,36 +11,29 @@ logging.basicConfig(level=logging.INFO,
 dbNameHis = 'GTA_SEL1_TRDMIN_%s'
 tbNameHis = '%sL1_TRDMIN01_%s'
 
-def formatConvert(dataStr):
-    '''
-    将国泰安HBASE数据获取客户端数据获取程序
-    获得的SEL1数据逗号分隔的字符串转换成HistoryDataModel对象
-    并设置正确的表名称
-
-    此函数要求传入数据的格式正确
-    '''
+def dataParse(dataStr):
     fields = dataStr.split(',')
     l = len(fields)
     if l < 11:
-        print('csv行切分后列数为%s,异常返回' % l)
+        logging.info('csv行切分后列数为%s,异常返回' % l)
         return None
     s_m = fields[0].split('.')
 
-    # 根据market和month 指定ORM类和表的映射
-    rowObj = HistoryDataModel()
-    rowObj.SECCODE = s_m[0]
-    rowObj.SECNAME = fields[2]
-    rowObj.TDATE = fields[3]
-    rowObj.MINTIME = fields[4]
-    rowObj.STARTPRC = float(fields[5])
-    rowObj.HIGHPRC = float(fields[6])
-    rowObj.LOWPRC = float(fields[7])
-    rowObj.ENDPRC = float(fields[8])
-    rowObj.MINTQ = float(fields[9]) # Volume成交手
-    rowObj.MINTM = float(fields[10]) # Amount成交量
-    rowObj.UNIX = int(fields[11])
-    rowObj.MARKET = s_m[1]
-    return rowObj
+    # 根据market和month
+    rowMap = {}
+    rowMap['SECCODE'] = s_m[0]
+    rowMap['SECNAME'] = fields[2]
+    rowMap['TDATE'] = fields[3]
+    rowMap['MINTIME'] = fields[4]
+    rowMap['STARTPRC'] = float(fields[5])
+    rowMap['HIGHPRC'] = float(fields[6])
+    rowMap['LOWPRC'] = float(fields[7])
+    rowMap['ENDPRC'] = float(fields[8])
+    rowMap['MINTQ'] = float(fields[9]) # Volume成交手
+    rowMap['MINTM'] = float(fields[10]) # Amount成交量
+    rowMap['UNIX'] = int(fields[11])
+    rowMap['MARKET'] = s_m[1]
+    return rowMap
 
 def processCsv(fname):
     '''
@@ -48,42 +42,23 @@ def processCsv(fname):
     返回：
         true
     '''
-    REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13/%s'
-    LOCAL_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@localhost/%s'
-    CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
-    print('CONN is %s' % CONN)
-    engine = create_engine(CONN % (dbNameHis % '201212'))
-    # HistoryDataModel.__table__.create(engine,checkfirst=True)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    f = codecs.open(fname,'r','utf-8')
-    exceptionCount = 0
-    print('导入%s中..' % fname)
-    for line in f.readlines():
+    rows,errCount,count = [],0,0
+    logging.info('导入%s中..' % fname)
+    eg = DBHelper.getHisDB('201212')
+    # eg = DBHelper.getTestDB()
+    # HistoryDataModel.__table__.create(eg,checkfirst=True)
+    for line in codecs.open(fname,'r','utf-8'):
         if line.find('#') != -1:
             continue
-        else:
-            obj = formatConvert(line)
-            if obj != None:
-                session.merge(obj)
-                if len(session.new) == 200000:
-                    try:
-                        session.commit()
-                    except Exception as e:
-                        logging.warn(str(os.getpid())+e)
-                        exceptionCount += 1
-                        continue
-    f.close()
-    try:
-        session.commit()
-    except Exception as e:
-        logging.warn(str(os.getpid())+e)
-        exceptionCount += 1
-    session.close()
-    logging.info('线程%s:异常个数为%s' % (os.getpid(),exceptionCount))
-    print('导入%s结束..' % fname)
-    return True
+        obj = dataParse(line)
+        if obj != None:
+            count += 1
+            try:
+                eg.execute(HistoryDataModel.__table__.insert(),rows)
+            except Exception as e:
+                errCount += 1
+    logging.info('导入%s结束,count->errCount = (%s,%s)' % (fname,count,errCount))
+    return True if errCount == 0 else False
 
 def processCsvDir(csvPath):
     '''
@@ -97,14 +72,14 @@ def processCsvDir(csvPath):
             fileList.append(absPath)
     # 进程池
     pool = multiprocessing.Pool(10)
-    print('csv文件个数 : %s' % len(fileList))
+    logging.info('csv文件个数 : %s' % len(fileList))
     results = pool.map(processCsv,fileList)
     for i,j in zip(results,fileList):
-        print(j,i)
+        logging.info('%s-%s' % (j,i))
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        print('请务必指定csv文件的目录')
+        logging.info('请务必指定csv文件的目录')
         # processCsvDir('.')
         exit(0)
     else:

@@ -1,6 +1,7 @@
 # coding:utf-8
 from sqlalchemy import *
 from sqlalchemy.dialects.mssql import INTEGER,VARCHAR,DATE,DATETIME,DECIMAL,NVARCHAR,BIGINT
+import platform
 
 class DBHelper:
     META = MetaData()
@@ -11,12 +12,15 @@ class DBHelper:
     CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
     DBMAP,TBMAP = {},{}
 
+    @staticmethod
     def dbName(month):
         return DBNAME_FORMAT % month
 
+    @staticmethod
     def tbName(market,month):
         return TBNAME_FORMAT % (market,month)
 
+    @staticmethod
     def getHisDB(month):
         '''返回进程安全的engine对象'''
         dbname = dbName(month)
@@ -24,6 +28,11 @@ class DBHelper:
             DBMAP[dbname] = create_engine(CONN % dbname,poolclass=NullPool)
         return DBMAP[dbname]
 
+    @staticmethod
+    def getTestDB():
+        return create_engine('mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13/TEST')
+
+    @staticmethod
     def getHisTB(market,month):
         '''获取历史数据表的table对象'''
         dbname = dbname(month)
