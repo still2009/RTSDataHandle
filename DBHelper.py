@@ -1,6 +1,5 @@
 # coding:utf-8
 from sqlalchemy import *
-from sqlalchemy.pool import NullPool
 from sqlalchemy.dialects.mssql import INTEGER,VARCHAR,DATE,DATETIME,DECIMAL,NVARCHAR,BIGINT
 import platform
 
@@ -26,8 +25,12 @@ class DBHelper:
         '''返回进程安全的engine对象'''
         dbname = cls.dbName(month)
         if dbname not in cls.DBMAP:
-            cls.DBMAP[dbname] = create_engine(cls.CONN % dbname,poolclass=NullPool)
+            cls.DBMAP[dbname] = create_engine(cls.CONN % dbname)
         return cls.DBMAP[dbname]
+
+    @classmethod
+    def getDB(cls,month):
+        return create_engine(cls.CONN % month)
 
     @staticmethod
     def getTestDB():

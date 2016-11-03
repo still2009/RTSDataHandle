@@ -45,7 +45,7 @@ def processCsv(fname):
     '''
     errCount,count = 0,0
     logging.info('导入%s中..' % fname)
-    eg = DBHelper.getHisDB('201212')
+    eg = DBHelper.getDB('201212')
     # eg = DBHelper.getTestDB()
     # HistoryDataModel.__table__.create(eg,checkfirst=True)
     for line in codecs.open(fname,'r','utf-8'):
