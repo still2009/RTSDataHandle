@@ -23,7 +23,7 @@ class DBHelper:
     @staticmethod
     def getHisDB(month):
         '''返回进程安全的engine对象'''
-        dbname = dbName(month)
+        dbname = DBHelper.dbName(month)
         if dbname not in DBMAP:
             DBMAP[dbname] = create_engine(CONN % dbname,poolclass=NullPool)
         return DBMAP[dbname]
@@ -35,8 +35,8 @@ class DBHelper:
     @staticmethod
     def getHisTB(market,month):
         '''获取历史数据表的table对象'''
-        dbname = dbname(month)
-        tbname = tbName(market,month)
+        dbname = DBHelper.dbName(month)
+        tbname = DBHelper.tbName(market,month)
         if tbname not in TBMAP:
             t = Table(tbname,META,
                 Column('SECCODE',NVARCHAR(length=6),primary_key=True),
