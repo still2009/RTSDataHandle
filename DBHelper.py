@@ -1,5 +1,6 @@
 # coding:utf-8
 from sqlalchemy import *
+from sqlalchemy.pool import NullPool
 from sqlalchemy.dialects.mssql import INTEGER,VARCHAR,DATE,DATETIME,DECIMAL,NVARCHAR,BIGINT
 import platform
 
@@ -12,33 +13,33 @@ class DBHelper:
     CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
     DBMAP,TBMAP = {},{}
 
-    @staticmethod
-    def dbName(month):
-        return DBNAME_FORMAT % month
+    @classmethod
+    def dbName(cls,month):
+        return cls.DBNAME_FORMAT % month
 
-    @staticmethod
-    def tbName(market,month):
-        return TBNAME_FORMAT % (market,month)
+    @classmethod
+    def tbName(cls,market,month):
+        return cls.TBNAME_FORMAT % (market,month)
 
-    @staticmethod
-    def getHisDB(month):
+    @classmethod
+    def getHisDB(cls,month):
         '''返回进程安全的engine对象'''
-        dbname = DBHelper.dbName(month)
-        if dbname not in DBMAP:
-            DBMAP[dbname] = create_engine(CONN % dbname,poolclass=NullPool)
-        return DBMAP[dbname]
+        dbname = cls.dbName(month)
+        if dbname not in cls.DBMAP:
+            cls.DBMAP[dbname] = create_engine(cls.CONN % dbname,poolclass=NullPool)
+        return cls.DBMAP[dbname]
 
     @staticmethod
     def getTestDB():
         return create_engine('mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13/TEST')
 
-    @staticmethod
-    def getHisTB(market,month):
+    @classmethod
+    def getHisTB(cls,market,month):
         '''获取历史数据表的table对象'''
-        dbname = DBHelper.dbName(month)
-        tbname = DBHelper.tbName(market,month)
-        if tbname not in TBMAP:
-            t = Table(tbname,META,
+        dbname = cls.dbName(month)
+        tbname = cls.tbName(market,month)
+        if tbname not in cls.TBMAP:
+            t = Table(tbname,cls.META,
                 Column('SECCODE',NVARCHAR(length=6),primary_key=True),
                 Column('SECNAME',NVARCHAR(length=20),primary_key=True),
                 Column('TDATE',NVARCHAR(length=10),primary_key=True),
@@ -52,6 +53,8 @@ class DBHelper:
                 Column('UNIX',BIGINT),
                 Column('MARKET',NVARCHAR(length=4),primary_key=True)
             )
-            t.create(DBMAP[dbname],checkfirst=True)
-            TBMAP[tbname] = t
-        return TBMAP[tbname]
+            t.create(cls.getHisDB(dbname),checkfirst=True)
+            cls.TBMAP[tbname] = t
+        return cls.TBMAP[tbname]
+DBHelper.getHisDB('201010')
+DBHelper.getHisTB('SH','201212')
