@@ -6,8 +6,7 @@ logging.basicConfig(level=logging.INFO,
                 format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                 datefmt='%a, %d %b %Y %H:%M:%S',
                 filename='myapp.log',
-                filemode='w')
-
+                filemode='a')
 dbNameHis = 'GTA_SEL1_TRDMIN_%s'
 tbNameHis = '%sL1_TRDMIN01_%s'
 
@@ -68,13 +67,14 @@ def processCsv(fname):
             obj = formatConvert(line)
             if obj != None:
                 session.merge(obj)
-                if len(session.new) == 2000:
+                if len(session.new) == 200000:
                     try:
                         session.commit()
                     except Exception as e:
                         logging.warn(str(os.getpid())+e)
                         exceptionCount += 1
                         continue
+    f.close()
     try:
         session.commit()
     except Exception as e:
@@ -99,7 +99,8 @@ def processCsvDir(csvPath):
     pool = multiprocessing.Pool(10)
     print('csv文件个数 : %s' % len(fileList))
     results = pool.map(processCsv,fileList)
-    return results
+    for i,j in zip(results,fileList):
+        print(j,i)
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
