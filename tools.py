@@ -1,4 +1,5 @@
 # coding:utf-8
+from db import HistoryDataModel
 import sys,os,multiprocessing,codecs
 import logging
 from DBHelper import *
@@ -10,7 +11,7 @@ logging.basicConfig(level=logging.INFO,
                 filemode='a')
 dbNameHis = 'GTA_SEL1_TRDMIN_%s'
 tbNameHis = '%sL1_TRDMIN01_%s'
-
+# errFile = codecs.open('failedData.txt','a','utf-8')
 def dataParse(dataStr):
     fields = dataStr.split(',')
     l = len(fields)
@@ -42,7 +43,7 @@ def processCsv(fname):
     返回：
         true
     '''
-    rows,errCount,count = [],0,0
+    errCount,count = 0,0
     logging.info('导入%s中..' % fname)
     eg = DBHelper.getHisDB('201212')
     # eg = DBHelper.getTestDB()
@@ -54,8 +55,10 @@ def processCsv(fname):
         if obj != None:
             count += 1
             try:
-                eg.execute(HistoryDataModel.__table__.insert(),rows)
+                eg.execute(HistoryDataModel.__table__.insert(),obj)
             except Exception as e:
+                # global errFile
+                # errFile.write(line)
                 errCount += 1
     logging.info('导入%s结束,count->errCount = (%s,%s)' % (fname,count,errCount))
     return True if errCount == 0 else False
