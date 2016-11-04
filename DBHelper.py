@@ -7,8 +7,8 @@ class DBHelper:
     META = MetaData()
     DBNAME_FORMAT = 'GTA_SEL1_TRDMIN_%s'
     TBNAME_FORMAT = '%sL1_TRDMIN01_%s'
-    REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13/%s'
-    LOCAL_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n@localhost/%s'
+    REMOTE_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n-new@202.115.75.13/%s'
+    LOCAL_CONN = 'mssql+pymssql://admin:c0mm0n-adm1n-new@localhost/%s'
     CONN = REMOTE_CONN if platform.system() == 'Darwin' else LOCAL_CONN
     DBMAP,TBMAP = {},{}
 
@@ -30,11 +30,11 @@ class DBHelper:
 
     @classmethod
     def getDB(cls,month):
-        return create_engine(cls.CONN % month)
+        return create_engine(cls.CONN % cls.dbName(month))
 
     @staticmethod
     def getTestDB():
-        return create_engine('mssql+pymssql://admin:c0mm0n-adm1n@202.115.75.13/TEST')
+        return create_engine('mssql+pymssql://admin:c0mm0n-adm1n-new@202.115.75.13/TEST')
 
     @classmethod
     def getHisTB(cls,market,month):

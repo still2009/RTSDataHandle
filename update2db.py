@@ -83,6 +83,22 @@ def begin(f=60):
     print('创建数据库')
     createTable()
     ASub(TDPS(),freq=f)
+delayList = []
+def testCallBack(Level1Min):
+    if Level1Min.ProductID != 4294967295:
+        delay = time.time()*1000 - Level1Min.UNIX
+        delayList.append(delay)
+        print('延时为:%ss' % delay)
+def test():
+    print('任务开始执行...')
+    itemCounter.start()
+    finalThread.start()
+    middleThread.start()
+    print('创建数据库')
+    createTable()
+    conn = TDPS()
+    conn.RegSSEL1MinCallBack(testCallBack) # 上海回调注册
+    conn.Subscribe(b'000001',DSPStruct.EU_SSEL1Min,60)
 def end():
     print('任务结束执行...')
     itemCounter.stop()
