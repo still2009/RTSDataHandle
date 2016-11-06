@@ -110,7 +110,7 @@ begin
         set @isSucc=-1
         print '数据库' + @db_name + '的' + @tb_name + '表导入失败'
       end catch
-      if (@isSucc == 1) -- 执行过程未出现异常时将导入状态标志为1
+      if (@isSucc = 1) -- 执行过程未出现异常时将导入状态标志为1
       begin
         set @final_sql = 'update db_status set imported=1 where name='+''''+@db_name+''''
         exec(@final_sql)
