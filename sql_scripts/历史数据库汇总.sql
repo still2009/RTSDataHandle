@@ -24,20 +24,22 @@ else
 
 if object_id('dbo.db_status') is null
 begin
-  print '临时表db_status 不存在，开始创建'
+  print '导入记录表db_status 不存在，开始创建'
   create table db_status(
     id int identity(1,1) not null,
-    name varchar(40) primary key not null,
-    imported int default 0 --0代表尚未导入，1代表已经导入
+    dbname varchar(40) not null,
+    tbname varchar(40) not null,
+    imported int default 0, --0代表尚未导入，1代表已经导入
+    primary key(dbname,tbname)
   )
   print '表db_status 创建成功'
 end
 else
-  print '临时表 db_status 已经存在'
+  print '导入记录表 db_status 已经存在'
 
 --列出所有的历史数据库，并将其名称插入到临时表中
 declare cur cursor for select name from sys.databases
-where name like 'GTA_S%'
+where name like 'GTA_SEL1_TRDMIN_%'
 
 declare @temp_name varchar(30)
 open cur
@@ -84,19 +86,19 @@ begin
       continue
     end
     select @db_name = name from db_status where id=@i
-    set @insert_sql='declare tb_cur cursor for select name from '+@db_name+'.sys.tables where name like ''%min01%'''
+    set @insert_sql='declare tb_cur cursor for select name from '+@db_name+'.sys.tables where name like ''%TRDMIN01%'''
     exec(@insert_sql)
     set @insert_sql='select SecCode,SecName,tdate,MinTime,StartPrc,HighPrc,LowPrc,EndPrc,MinTq,MinTm,'
-    --之前已经声明了tb_cur
+    --之前在exe中已经声明了tb_cur
     open tb_cur
     fetch next from tb_cur into @tb_name
     while(@@fetch_status=0)
     begin
       print '正在导入' + @db_name + '.dbo.' + @tb_name + '的数据'
       set @final_sql = 'insert into GTA_ALL.dbo.L1_TRDMIN01_ALL '
-      if(@tb_name like 'SH%')
+      if(@tb_name like 'SHL1%')
         set @market_str='''SSE'''
-      else
+      else if(@tb_name like 'SZL1%')
         set @market_str='''SZSE'''
       set @final_sql = @final_sql + @insert_sql + @market_str + ' as Market from ' + @db_name + '.dbo.' + @tb_name
       print '开始执行导入数据的sql语句:' + char(10) + @final_sql
@@ -112,9 +114,9 @@ begin
       end catch
       if (@isSucc = 1) -- 执行过程未出现异常时将导入状态标志为1
       begin
-        set @final_sql = 'update db_status set imported=1 where name='+''''+@db_name+''''
+        set @final_sql = 'update db_status set imported=1 where dbname='+''''+@db_name+''' and tbname='+''''+@db_name+''''
         exec(@final_sql)
-        print '已成功将数据库' + @db_name + '的导入状态标记为1'
+        print '数据库' + @db_name + '的' + @tbname + '表导入成功'
       end
       fetch next from tb_cur into @tb_name
     end
