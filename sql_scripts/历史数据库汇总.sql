@@ -99,13 +99,25 @@ begin
       else
         set @market_str='''SZSE'''
       set @final_sql = @final_sql + @insert_sql + @market_str + ' as Market from ' + @db_name + '.dbo.' + @tb_name
-      print '导入执行的sql语句为:' + char(10) + @final_sql
-      exec(@final_sql)
+      print '开始执行导入数据的sql语句:' + char(10) + @final_sql
+      declare @isSucc int
+      set @isSucc=1
+      begin try
+        exec(@final_sql)
+      end try
+      begin catch
+        select ERROR_NUMBER(),ERROR_STATE(),ERROR_PROCEDURE(),ERROR_LINE(),ERROR_SEVERITY(),ERROR_MESSAGE()
+        set @isSucc=-1
+        print '数据库' + @db_name + '的' + @tb_name + '表导入失败'
+      end catch
+      if (@isSucc == 1) -- 执行过程未出现异常时将导入状态标志为1
+      begin
+        set @final_sql = 'update db_status set imported=1 where name='+''''+@db_name+''''
+        exec(@final_sql)
+        print '已成功将数据库' + @db_name + '的导入状态标记为1'
+      end
       fetch next from tb_cur into @tb_name
     end
-    set @final_sql = 'update db_status set imported=1 where name='+''''+@db_name+''''
-    exec(@final_sql)
-    print '已成功将数据库' + @db_name + '的导入状态标记为1'
     close tb_cur
     deallocate tb_cur
     set @i=@i+1
