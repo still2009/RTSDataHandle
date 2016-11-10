@@ -5,3 +5,4 @@ ipconfig.txt
 *.pyc
 *.log
 *.csv
+*.DS_Store
