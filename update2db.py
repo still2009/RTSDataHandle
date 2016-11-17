@@ -40,9 +40,9 @@ def DB_MinCallBack(Level1Min):
            Level1Min.CumulativeVWAP,
            time.time(),
            rd)
-    td = finalThread if Level1Min.UNIX <= int(1000*nowUNIX) else middleThread
-    itemCounter.step()
-    td.add(data)
+    if Level1Min.ProductID != 4294967295:
+        itemCounter.step()
+        finalThread.add(data)
 
 # 上海单支订阅
 def getSSEL1(conn,code):

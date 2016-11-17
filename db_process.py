@@ -9,13 +9,16 @@ import sys
 class Counter(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
+        self.delta = 0
         self.count = 0
         self.runningFlag = True
     def run(self):
         print('counter started')
         while self.runningFlag:
+            self.delta = self.count
             time.sleep(1)
-            sys.stdout.write('\r接收到的数据条目数：%s' % self.count)
+            self.delta = self.count - self.delta
+            sys.stdout.write('\r接收到的数据条目数：%s  每秒%s' % (self.count,self.delta))
             sys.stdout.flush()
     def stop(self):
         self.runningFlag = False
