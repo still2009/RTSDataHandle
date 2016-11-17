@@ -1,127 +1,93 @@
-use gta_all
-declare @c int
-select @c=count(*) from sys.tables where name='L1_TRDMIN01_ALL'
-if(@c=0)
-begin
-  print '历史数据库总表不存在，开始创建'
-  CREATE TABLE [dbo].[L1_TRDMIN01_ALL] (
-    [SECCODE] nvarchar(6) COLLATE Chinese_PRC_CI_AS NOT NULL,
-    [SECNAME] nvarchar(20) COLLATE Chinese_PRC_CI_AS NOT NULL,
-    [TDATE] nvarchar(10) COLLATE Chinese_PRC_CI_AS NOT NULL,
-    [MINTIME] nvarchar(4) COLLATE Chinese_PRC_CI_AS NOT NULL,
-    [STARTPRC] decimal(9,3) NULL,
-    [HIGHPRC] decimal(9,3) NULL,
-    [LOWPRC] decimal(9,3) NULL,
-    [ENDPRC] decimal(9,3) NULL,
-    [MINTQ] decimal(12,0) NULL,
-    [MINTM] decimal(18,3) NULL,
-    [MARKET] nvarchar(4) COLLATE Chinese_PRC_CI_AS NULL
-  )
-  print '总表创建成功'
-end
-else
-  print '历史数据总表已经存在'
+use finx_final
 
-if object_id('dbo.db_status') is null
+if object_id('dbo.import_status') is null
 begin
-  print '导入记录表db_status 不存在，开始创建'
-  create table db_status(
+  print '导入记录表import_status 不存在，开始创建'
+  create table import_status(
     id int identity(1,1) not null,
     dbname varchar(40) not null,
     tbname varchar(40) not null,
     imported int default 0, --0代表尚未导入，1代表已经导入
     primary key(dbname,tbname)
   )
-  print '表db_status 创建成功'
+  print '表import_status 创建成功'
 end
 else
-  print '导入记录表 db_status 已经存在'
+  print '导入记录表 import_status 已经存在'
 
 --列出所有的历史数据库，并将其名称插入到临时表中
+declare @ssql varchar(150)
 declare cur cursor for select name from sys.databases
 where name like 'GTA_SEL1_TRDMIN_%'
 
-declare @temp_name varchar(30)
+declare @temp_dbname varchar(30)
+declare @temp_tbname varchar(30)
 open cur
-fetch next from cur into @temp_name
+fetch next from cur into @temp_dbname
 while(@@fetch_status=0)
 begin
-  if not exists(select name from db_status where name=@temp_name)
+  set @ssql='declare ttb_cur cursor for select name from '+@temp_dbname+'.sys.tables where name like ''%TRDMIN01%'''
+  exec(@ssql)
+
+  open ttb_cur
+  fetch next from ttb_cur into @temp_tbname
+  while(@@FETCH_STATUS=0)
   begin
-    print '新数据库' + @temp_name + '插入到db_status表中'
-    insert into db_status (name) values(@temp_name)
+    if not exists(select dbname,tbname from import_status where dbname=@temp_dbname and tbname=@temp_tbname)
+    begin
+      print 'new table' + @temp_tbname + '插入到import_status表中'
+      insert into import_status (dbname,tbname) values(@temp_dbname,@temp_tbname)
+    end
+	fetch next from ttb_cur into @temp_tbname
   end
-  fetch next from cur into @temp_name
+  close ttb_cur
+  deallocate ttb_cur
+
+  fetch next from cur into @temp_dbname
 end
 close cur
 deallocate cur
 
 --列出所有未被导入总库的数据库个数
 declare @not_imported_count int
-select @not_imported_count=count(*) from db_status where imported=0
-print '尚未导入的数据库个数为 : ' + cast(@not_imported_count as varchar)
+select @not_imported_count=count(*) from import_status where imported=0
+print '尚未导入的表的个数为 : ' + cast(@not_imported_count as varchar)
 
 
---循环导入
-if @not_imported_count>0
+declare @db_name varchar(30), @tb_name varchar(30) ,@mysql varchar(200)
+declare @market_str varchar(10)
+declare @isSucc int
+
+declare impCur cursor for select dbname,tbname from import_status where imported=0
+open impCur
+fetch next from impCur into @db_name,@tb_name
+while(@@FETCH_STATUS=0)
 begin
-  print '开始循环导入数据到历史数据库'
-  declare @i int
-  set @i=1
-  declare @insert_sql varchar(200)
-  declare @final_sql varchar(200)
-  declare @db_name varchar(50)
-  declare @tb_name varchar(30)
-  declare @is_imported int
-  declare @db_amount int
-  declare @market_str varchar(10)
-  select @db_amount=count(*) from db_status
-  --开始循环
-  while(@i <= @db_amount)
+  set @mysql = 'insert into dbo.A_MIN_01 select SecCode,SecName,tdate,MinTime,StartPrc,HighPrc,LowPrc,EndPrc,MinTq,MinTm,'
+  if(@tb_name like 'SHL1%')
+    set @market_str='''SSE'''
+  else if(@tb_name like 'SZL1%')
+    set @market_str='''SZSE'''
+  set @mysql = @mysql + @market_str + ' as Market from '+@db_name+'.dbo.'+@tb_name
+  print @mysql
+  set @isSucc=1
+  begin try
+    exec(@mysql)
+  end try
+  begin catch
+    select ERROR_NUMBER() as errNum,ERROR_STATE() as errState,ERROR_PROCEDURE() as errProc,
+	ERROR_LINE() as errLine,ERROR_SEVERITY() as errSeverity,ERROR_MESSAGE() as errMsg
+    set @isSucc=-1
+    print '数据库' + @db_name + '的' + @tb_name + '表导入失败'
+  end catch
+  if (@isSucc = 1) -- 执行过程未出现异常时将导入状态标志为1
   begin
-    select @is_imported = imported from db_status where id=@i
-    if(@is_imported=1)
-    begin
-      set @i=@i+1
-      continue
-    end
-    select @db_name = name from db_status where id=@i
-    set @insert_sql='declare tb_cur cursor for select name from '+@db_name+'.sys.tables where name like ''%TRDMIN01%'''
-    exec(@insert_sql)
-    set @insert_sql='select SecCode,SecName,tdate,MinTime,StartPrc,HighPrc,LowPrc,EndPrc,MinTq,MinTm,'
-    --之前在exe中已经声明了tb_cur
-    open tb_cur
-    fetch next from tb_cur into @tb_name
-    while(@@fetch_status=0)
-    begin
-      print '正在导入' + @db_name + '.dbo.' + @tb_name + '的数据'
-      set @final_sql = 'insert into GTA_ALL.dbo.L1_TRDMIN01_ALL '
-      if(@tb_name like 'SHL1%')
-        set @market_str='''SSE'''
-      else if(@tb_name like 'SZL1%')
-        set @market_str='''SZSE'''
-      set @final_sql = @final_sql + @insert_sql + @market_str + ' as Market from ' + @db_name + '.dbo.' + @tb_name
-      print '开始执行导入数据的sql语句:' + char(10) + @final_sql
-      declare @isSucc int
-      set @isSucc=1
-      begin try
-        exec(@final_sql)
-      end try
-      begin catch
-        select ERROR_NUMBER(),ERROR_STATE(),ERROR_PROCEDURE(),ERROR_LINE(),ERROR_SEVERITY(),ERROR_MESSAGE()
-        set @isSucc=-1
-        print '数据库' + @db_name + '的' + @tb_name + '表导入失败'
-      end catch
-      if (@isSucc = 1) -- 执行过程未出现异常时将导入状态标志为1
-      begin
-        set @final_sql = 'update db_status set imported=1 where dbname='+''''+@db_name+''' and tbname='+''''+@db_name+''''
-        exec(@final_sql)
-        print '数据库' + @db_name + '的' + @tbname + '表导入成功'
-      end
-      fetch next from tb_cur into @tb_name
-    end
-    close tb_cur
-    deallocate tb_cur
-    set @i=@i+1
+    set @mysql = 'update import_status set imported=1 where dbname='+''''+@db_name+''' and tbname='+''''+@tb_name+''''
+    print @mysql
+	exec(@mysql)
+    print '数据库' + @db_name + '的' + @tb_name + '表导入成功'
   end
+  fetch next from impCur into @db_name,@tb_name
 end
+close impCur
+deallocate impCur
