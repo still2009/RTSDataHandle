@@ -107,7 +107,7 @@ class ConsumeThread(threading.Thread):
 
 # 定时器任务类，用来执行定时任务
 class DailyTask(threading.Thread):
-    def __init__(self,h,m,fun,params):
+    def __init__(self,h,m,s,fun,params):
         '''
         h : 小时 0~23
         m : 分钟 0~59
@@ -117,13 +117,14 @@ class DailyTask(threading.Thread):
         threading.Thread.__init__(self)
         self.hour = h
         self.minute = m
+        self.second = s
         self.fun = fun
         self.params = params
         self.runningFlag = True
 
     def _calcDelay(self):
         now = datetime.datetime.now()
-        target = datetime.datetime(now.year,now.month,now.day,self.hour,self.minute)
+        target = datetime.datetime(now.year,now.month,now.day,self.hour,self.minute,self.second)
         # 今日此时已过
         if(target < now):
             target = now + timedelta(days=1)

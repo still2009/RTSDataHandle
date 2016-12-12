@@ -66,10 +66,12 @@ def end(conn):
     print('子线程关闭成功')
     AUnSub(conn)
     print('全部退订成功')
+
 # 初始化计时线程
 globalConn = TDPS()
-dailyStart = DailyTask(9,25,begin,(globalConn,))
-dailyEnd = DailyTask(14,26,end,(globalConn,))
+timeConf = json.load(open('timer.conf','r'))
+dailyStart = DailyTask(timeConf['start_h'],timeConf['start_m'],timeConf['start_s'],begin,(globalConn,))
+dailyEnd = DailyTask(timeConf['end_h'],timeConf['end_m'],timeConf['end_s'],end,(globalConn,))
 if __name__ == '__main__':
     dailyStart.start()
     dailyEnd.start()
