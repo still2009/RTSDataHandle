@@ -1,6 +1,6 @@
 # coding:UTF-8
-import time,sys,logging,threading
-from datetime import datetime,timedelta
+import time,sys,logging,threading,datetime
+from datetime import timedelta
 from db import *
 
 # 计数器类，从来展示数据实时接收的情况
@@ -122,7 +122,7 @@ class DailyTask(threading.Thread):
         self.runningFlag = True
 
     def _calcDelay(self):
-        now = datetime.now()
+        now = datetime.datetime.now()
         target = now
         target.hour,target.minute = self.hour,self.minute
         # 今日此时已过
