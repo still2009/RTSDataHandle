@@ -7,42 +7,14 @@ import sys
 from threading import current_thread
 
 # 初始化2个线程
-finalThread = ConsumeThread('final',Session)
-middleThread = ConsumeThread('middle',Session)
+commitThread = ConsumeThread(Session)
 itemCounter = Counter()
-# 分时数据,额外增加receive_unix,ReceiveDate
-def DB_MinCallBack(Level1Min):
-    nowUNIX = time.time()
-    rd = dt.fromtimestamp(nowUNIX).strftime('%Y-%m-%d %H:%M:%S')
-    data = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(Level1Min.Freq,
-           Level1Min.SecurityID,
-           Level1Min.TradeTime,
-           Level1Min.ProductID,
-           Level1Min.Symbol,
-           Level1Min.TradingDate,
-           Level1Min.TradingTime,
-           Level1Min.UNIX,
-           Level1Min.Market,
-           Level1Min.ShortName.decode("UTF8"),
-           Level1Min.OpenPrice,
-           Level1Min.HighPrice,
-           Level1Min.LowPrice,
-           Level1Min.ClosePrice,
-           Level1Min.Volume,
-           Level1Min.Amount,
-           Level1Min.BenchMarkOpenPrice,
-           Level1Min.Change,
-           Level1Min.ChangeRatio,
-           Level1Min.TotalVolume,
-           Level1Min.VWAP,
-           Level1Min.CumulativeLowPrice,
-           Level1Min.CumulativeHighPrice,
-           Level1Min.CumulativeVWAP,
-           time.time(),
-           rd)
-    if Level1Min.ProductID != 4294967295:
+# 订阅回调函数，接收到数据是被调用，应该在该函数中处理接收到的数据。
+def DB_MinCallBack(l):
+    # 使用ProductID过滤中间数据,使用SecurityID过滤股票
+    if l.SecurityID/1000000000 == 201 and l.ProductID != 4294967295:
         itemCounter.step()
-        finalThread.add(data)
+        finalThread.add(l)
 
 # 上海单支订阅
 def getSSEL1(conn,code):
@@ -75,43 +47,25 @@ def AUnSub(conn):
     conn.RegSZSEL1MinCallBack(DB_MinCallBack)
     for freq in (60,300,600,900,1800,3600):
         conn.unSubscribe(b'*',DSPStruct.EU_SZSEL1Min,freq)
-def begin(f=60):
-    print('任务开始执行...')
+
+# 初始化程序，并开启沪深全市场1min订阅
+def begin(conn,f=60):
+    print('启动子线程...')
     itemCounter.start()
-    finalThread.start()
-    middleThread.start()
+    commitThread.start()
     print('创建数据库')
     createTable()
-    ASub(TDPS(),freq=f)
-delayList = []
-def testCallBack(Level1Min):
-    if Level1Min.ProductID != 4294967295:
-        delay = time.time()*1000 - Level1Min.UNIX
-        delayList.append(delay)
-        print('延时为:%ss' % delay)
-def test():
-    print('任务开始执行...')
-    itemCounter.start()
-    finalThread.start()
-    middleThread.start()
-    print('创建数据库')
-    createTable()
-    conn = TDPS()
-    conn.RegSSEL1MinCallBack(testCallBack) # 上海回调注册
-    conn.Subscribe(b'000001',DSPStruct.EU_SSEL1Min,60)
-def end():
-    print('任务结束执行...')
+    print('开始订阅')
+    ASub(conn,freq=f)
+
+# 清理程序，并全部退订
+def end(conn):
+    print('关闭子线程...')
     itemCounter.stop()
-    finalThread.stop()
-    middleThread.stop()
-    print('子线程全部关闭')
-    AUnSub(TDPS())
-    print('全部退订')
+    commitThread.stop()
+    print('子线程关闭成功')
+    AUnSub(conn)
+    print('全部退订成功')
+
 if __name__ == '__main__':
-    fq = 0
-    if len(sys.argv) != 2:
-        print('usage: python update2db.py 60\n60 即分时频率秒数为60\n默认为60')
-        fq = 60
-    else:
-        fq = int(sys.argv[1])
-    begin(fq)
+    begin(TDPS())

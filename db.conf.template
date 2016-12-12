@@ -1,0 +1,9 @@
+{
+    "dbms":"mssql",
+    "engine":"pymssql",
+    "user":"username",
+    "pwd":"pwd here",
+    "ip":"ip address",
+    "port":"db service listen port",
+    "dbname":"db name"
+}

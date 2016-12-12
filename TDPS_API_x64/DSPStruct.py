@@ -212,7 +212,7 @@ class SSEIOL1Quote(Structure):
            ('SellVOL', c_double),
            ('BuyVOL', c_double),
            ('PositionChange', c_double)]
-	
+
 class SSEIOL1Min(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -338,7 +338,7 @@ class SSEL2Index(Structure):
            ('TotalVolume', c_double),
            ('TotalAmount', c_double),
            ('ClosePrice', c_double)];
-	
+
 class SSEL2Orderqueue(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -405,7 +405,7 @@ class SSEL2Orderqueue(Structure):
            ('OrderVolume48', c_double),
            ('OrderVolume49', c_double),
            ('OrderVolume50', c_double)];
-	
+
 class SSEL2Quote(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -514,7 +514,7 @@ class SSEL2Quote(Structure):
            ('MaxSellDuration', c_double),
            ('BuyOrderNo', c_double),
            ('SellOrderNo', c_double)];
-	
+
 class SSEL2Transaction(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -533,7 +533,7 @@ class SSEL2Transaction(Structure):
            ('BuyRecID', c_int),
            ('SellRecID', c_int),
            ('BuySellFlag', c_char * 5)];
-	
+
 class SZSEL1Quote(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -601,7 +601,7 @@ class SZSEL1Quote(Structure):
            ('TradeNo', c_ulonglong),
            ('PERatio1', c_double),
            ('PERatio2', c_double)];
-	
+
 class SZSEL2Index(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -623,7 +623,7 @@ class SZSEL2Index(Structure):
            ('TotalVolume', c_double),
            ('SecurityPhaseTag', c_char * 9),
            ('SampleNo', c_int32)];
-	
+
 class SZSEL2Order(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -641,7 +641,7 @@ class SZSEL2Order(Structure):
            ('OrderVolume', c_double),
            ('OrderCode', c_char * 2),
            ('OrderType', c_char * 2)];
-	
+
 class SZSEL2Orderqueue(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -709,7 +709,7 @@ class SZSEL2Orderqueue(Structure):
            ('OrderVolume48', c_double),
            ('OrderVolume49', c_double),
            ('OrderVolume50', c_double)];
-	
+
 class SZSEL2Quote(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -889,7 +889,7 @@ class SZSEL2Static(Structure):
            ('LimitDownAbsoluteC', c_double),
            ('AuctionUpDownRateC', c_double),
            ('AuctionUpDownAbsoluteC', c_double)];
-	
+
 class SZSEL2Status(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -922,7 +922,7 @@ class SZSEL2Status(Structure):
            ('StockPledgeRepo', c_char * 2),
            ('DivideStatus', c_char * 2),
            ('MergerStatus', c_char * 2)];
-	
+
 class SZSEL2Transaction(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -941,7 +941,7 @@ class SZSEL2Transaction(Structure):
            ('TradePrice', c_double),
            ('TradeVolume', c_double),
            ('TradeType', c_char * 2)];
-	
+
 class CFFEXTFL2Quote(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -1009,7 +1009,7 @@ class CFFEXTFL2Quote(Structure):
            ('VolRate', c_double),
            ('SellVOL', c_double),
            ('BuyVOL', c_double)];
-	
+
 class CFFEXTFL2Min(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -1177,7 +1177,7 @@ class CFFEXFFL2Min(Structure):
            ('SellVolume04', c_longlong),
            ('SellVolume05', c_longlong),
            ('Return', c_double)]
-	
+
 class CFFEXIOL2Quote(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -1297,7 +1297,7 @@ class CFFEXIOL2Min(Structure):
            ('Return', c_double),
            ('MarginUnit', c_double),
            ('MaintainingMargin', c_double)]
-	
+
 class SHFEL1Quote(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -1370,7 +1370,7 @@ class SHFEL1Quote(Structure):
            ('SellVOL', c_double),
            ('BuyVOL', c_double),
            ('PositionChange', c_double)]
-	
+
 class SHFEL1Min(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -1400,7 +1400,7 @@ class SHFEL1Min(Structure):
            ('CumulativeHighPrice', c_double),
            ('CumulativeVWAP', c_double),
            ('Return', c_double)]
-	
+
 class DCEL1Quote(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -1473,7 +1473,7 @@ class DCEL1Quote(Structure):
            ('SellVOL', c_double),
            ('BuyVOL', c_double),
            ('PositionChange', c_double)]
-	
+
 class DCEL1Min(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -1503,7 +1503,7 @@ class DCEL1Min(Structure):
            ('CumulativeHighPrice', c_double),
            ('CumulativeVWAP', c_double),
            ('Return', c_double)]
-	
+
 class DCEL1Arbitrage(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -1526,7 +1526,7 @@ class DCEL1Arbitrage(Structure):
            ('SellPrice01', c_double),
            ('SellVolume01', c_double),
            ('LocalTimeStamp', c_char * 24)]
-	
+
 class CZCEL1Quote(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
@@ -1599,7 +1599,7 @@ class CZCEL1Quote(Structure):
            ('SellVOL', c_double),
            ('BuyVOL', c_double),
            ('PositionChange', c_double)]
-	
+
 class CZCEL1Min(Structure):
 	_fields_ = [('Freq', c_uint),
            ('SecurityID', c_ulonglong),
