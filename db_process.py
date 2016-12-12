@@ -123,7 +123,7 @@ class DailyTask(threading.Thread):
 
     def _calcDelay(self):
         now = datetime.datetime.now()
-        target = daetime.datetime(now.year,now.month,now.day,self.hour,self.minute)
+        target = datetime.datetime(now.year,now.month,now.day,self.hour,self.minute)
         # 今日此时已过
         if(target > now):
             target = now + timedelta(days=1)
