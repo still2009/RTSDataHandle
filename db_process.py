@@ -121,7 +121,7 @@ class DailyTask(threading.Thread):
         self.params = params
         self.runningFlag = True
 
-    def _calcDelay():
+    def _calcDelay(self):
         now = datetime.now()
         target = now
         target.hour,target.minute = self.hour,self.minute
@@ -135,5 +135,5 @@ class DailyTask(threading.Thread):
             time.sleep(_calcDelay())
             self.fun(*self.params)
 
-    def stop():
+    def stop(self):
         self.runningFlag = False
