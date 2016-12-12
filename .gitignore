@@ -6,4 +6,4 @@ ipconfig.txt
 *.log
 *.csv
 *.DS_Store
-db.conf
+*.conf
