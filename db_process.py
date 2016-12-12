@@ -1,10 +1,7 @@
 # coding:UTF-8
-# import multiprocessing
-import threading
-import time
+import time,sys,logging,threading
+from datetime import datetime,timedelta
 from db import *
-import logging
-import sys
 
 # 计数器类，从来展示数据实时接收的情况
 class Counter(threading.Thread):
@@ -32,7 +29,7 @@ class Counter(threading.Thread):
 # 数据消费线程类，用来将接收到的数据存储到session并最终提交到数据库
 class ConsumeThread(threading.Thread):
     '''数据消费线程'''
-    def __init__(self,SessionClass,delay = 30):
+    def __init__(self,SessionClass,delay = 6):
         '''
         SessionClass为生成Session的类
         delay为提交延时
@@ -105,4 +102,38 @@ class ConsumeThread(threading.Thread):
         while(True):
             if(not self.commitingFlag):
                 self.log('所有session提交完成，线程停止工作')
+                break
             time.sleep(1)
+
+# 定时器任务类，用来执行定时任务
+class DailyTask(threading.Thread):
+
+    def __init__(self,h,m,fun,params):
+        '''
+        h : 小时 0~23
+        m : 分钟 0~59
+        fun : 执行的函数
+        params : 函数参数
+        '''
+        self.hour = h
+        self.minute = m
+        self.fun = fun
+        self.params = params
+        self.runningFlag = True
+
+    def _calcDelay():
+        now = datetime.now()
+        target = now
+        target.hour,target.minute = self.hour,self.minute
+        # 今日此时已过
+        if(target > now):
+            target = now + timedelta(days=1)
+        return abs((target-now).total_seconds())
+
+    def run(self):
+        while(self.runningFlag):
+            time.sleep(_calcDelay())
+            self.fun(*self.params)
+
+    def stop():
+        self.runningFlag = False
