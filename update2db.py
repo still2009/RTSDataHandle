@@ -69,7 +69,7 @@ def end(conn):
 # 初始化计时线程
 globalConn = TDPS()
 dailyStart = DailyTask(9,25,begin,(globalConn,))
-dailyEnd = (14,26,end,(globalConn,))
+dailyEnd = DailyTask(14,26,end,(globalConn,))
 if __name__ == '__main__':
     dailyStart.start()
     dailyEnd.start()

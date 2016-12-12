@@ -132,7 +132,7 @@ class DailyTask(threading.Thread):
 
     def run(self):
         while(self.runningFlag):
-            time.sleep(_calcDelay())
+            time.sleep(self._calcDelay())
             self.fun(*self.params)
 
     def stop(self):
