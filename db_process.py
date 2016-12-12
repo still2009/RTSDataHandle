@@ -102,7 +102,7 @@ class ConsumeThread(threading.Thread):
         self.log('准备停止提交数据，正在进行最后的commit，条数为%s' % sLen)
         self.dbSession.commit()
         self.log('最后一次提交成功，条数为%s' % sLen)
-        while(True)
-            if(!self.commitingFlag)
+        while(True):
+            if(not self.commitingFlag):
                 self.log('所有session提交完成，线程停止工作')
             time.sleep(1)
