@@ -107,7 +107,6 @@ class ConsumeThread(threading.Thread):
 
 # 定时器任务类，用来执行定时任务
 class DailyTask(threading.Thread):
-
     def __init__(self,h,m,fun,params):
         '''
         h : 小时 0~23
@@ -115,6 +114,7 @@ class DailyTask(threading.Thread):
         fun : 执行的函数
         params : 函数参数
         '''
+        threading.Thread.__init__(self)
         self.hour = h
         self.minute = m
         self.fun = fun
