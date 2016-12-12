@@ -125,14 +125,18 @@ class DailyTask(threading.Thread):
         now = datetime.datetime.now()
         target = datetime.datetime(now.year,now.month,now.day,self.hour,self.minute)
         # 今日此时已过
-        if(target > now):
+        if(target < now):
             target = now + timedelta(days=1)
         return abs((target-now).total_seconds())
 
     def run(self):
         while(self.runningFlag):
-            time.sleep(self._calcDelay())
+            delay = self._calcDelay()
+            print('设定在%ss后执行任务\n' % delay)
+            time.sleep(delay)
+            print('开始执行任务..')
             self.fun(*self.params)
+            print('任务执行结束..')
 
     def stop(self):
         self.runningFlag = False
