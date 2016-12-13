@@ -74,8 +74,12 @@ class ConsumeThread(threading.Thread):
             # 换session成功
             self.commitingFlag = True
             self.log('开始提交 %s 条数据' % sLen)
-            s.commit()
-            self.log('提交 %s 条完成' % sLen)
+            try:
+                s.commit()
+            except sqlalchemy.exc.IntegrityError:
+                self.log('提交 %s 条异常，主键冲突' % sLen)
+            else:
+                self.log('提交 %s 条完成' % sLen)
             s.close()
             self.commitingFlag = False
 

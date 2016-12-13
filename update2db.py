@@ -3,7 +3,7 @@ from TDPS import *
 from DSPStruct import *
 from db_process import *
 from datetime import datetime as dt
-import sys
+import sys,math
 from threading import current_thread
 
 # 初始化2个线程
@@ -12,9 +12,9 @@ itemCounter = Counter()
 # 订阅回调函数，接收到数据是被调用，应该在该函数中处理接收到的数据。
 def DB_MinCallBack(l):
     # 使用ProductID过滤中间数据,使用SecurityID过滤股票
-    if l.SecurityID/1000000000 == 201 and l.ProductID != 4294967295:
+    if math.floor(l.SecurityID/1000000000) == 201 and l.ProductID != 4294967295:
         itemCounter.step()
-        finalThread.add(l)
+        commitThread.add(l)
 
 # 上海单支订阅
 def getSSEL1(conn,code):
