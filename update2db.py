@@ -9,19 +9,22 @@ from threading import current_thread
 # 初始化2个线程
 commitThread = ConsumeThread(Session)
 itemCounter = Counter()
+
+# 全局容器box
+box = Container()
 # 订阅回调函数，接收到数据是被调用，应该在该函数中处理接收到的数据。
 def DB_MinCallBack(l):
     # 先丢弃修正数据(mintime在当前时间之前)
     now = dt.now()
     hour = int(l.TradingTime[11:13])
     minute = int(l.TradingTime[14:16])
+    # 丢弃修正数据
     if hour < now.hour or (hour == now.hour and minute < now.minute):
-        print('丢弃修正数据')
         return
     # 使用ProductID过滤中间数据,使用SecurityID过滤股票
     if math.floor(l.SecurityID/1000000000) == 201 and l.ProductID != 4294967295:
         itemCounter.step()
-        commitThread.add(l)
+        box.add(l)
 
 # 上海单支订阅
 def getSSEL1(conn,code):

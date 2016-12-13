@@ -146,3 +146,34 @@ class DailyTask(threading.Thread):
 
     def stop(self):
         self.runningFlag = False
+
+class Container:
+    def __init__(self,SessionClass):
+        self.openPrc = {}
+        self.tradePrc = {}
+        self.otherPrc = {}
+        self.SessionClass = SessionClass
+
+    def add(self,l):
+        hour = int(l.TradingTime[11:13])
+        minute = int(l.TradingTime[14:16])
+        if(hour == 14 and 36 <= minute <= 45):
+            if self.otherPrc.get(l.SecurityID) != None:
+                self.otherPrc[l.SecurityID].HIGH = max(l.HighPrice,self.otherPrc[l.SecurityID].HIGH)
+                self.otherPrc[l.SecurityID].LOW = min(l.HighPrice,self.otherPrc[l.SecurityID].LOW)
+                self.otherPrc[l.SecurityID].SIGNAL += (l.HighPrice + l.LowPrice)/20
+                self.otherPrc[l.SecurityID].DELAY = int(time.time()) - l.UNIX/1000
+            else:
+                self.otherPrc[l.SecurityID] = L2OtherPrice(l)
+        elif(hour == 14 and 51 <= minute <= 59 or hour+minute == 15):
+            if self.tradePrc.get(l.SecurityID) != None:
+                self.tradePrc[l.SecurityID].PRICE += (l.HighPrice + l.LowPrice)/20
+                self.tradePrc[l.SecurityID].DELAY = int(time.time()) - l.UNIX/1000
+            else:
+                self.tradePrc[l.SecurityID] = L2TradePrice(l)
+        elif(hour == 9 and minute == 30):
+            if self.openPrc.get(l.SecurityID) != None:
+                self.openPrc[l.SecurityID].PRICE = l.OpenPrice
+                self.openPrc[l.SecurityID].DELAY = int(time.time()) - l.UNIX/1000
+            else:
+                self.openPrc[l.SecurityID] = L2OpenPrice(l)

@@ -8,38 +8,72 @@ from DSPStruct import Level1Min
 import codecs,platform,os,json
 
 Base = declarative_base()
-class MinuteDataModel(Base):
-    '''
-    实时分时数据表 MINUTE_DATA_TODAY 对应的类
-    '''
-    __tablename__ = 'MINUTE_DATA_TODAY'
+class OpenPriceModel(Base):
+    __tablename__ = 'OpenPrice'
     SecurityID = Column(BIGINT,primary_key=True)
-    TDATE = Column(VARCHAR(length=10),primary_key=True)
-    MINTIME = Column(VARCHAR(length=4),primary_key=True)
     PID = Column(INTEGER)
     MARKET = Column(VARCHAR(length=4),primary_key=True)
     SECCODE = Column(VARCHAR(length=6))
     SECNAME = Column(VARCHAR(length=20))
-    UNIX = Column(BIGINT)
     DELAY = Column(INTEGER)# 延时的秒数
-    STARTPRC = Column(DECIMAL(precision=9,scale=3))# (9,3)
-    HIGHPRC = Column(DECIMAL(precision=9,scale=3))# (9,3)
-    LOWPRC = Column(DECIMAL(precision=9,scale=3))# (9,3)
-    ENDPRC = Column(DECIMAL(precision=9,scale=3))# (9,3)
-    Volume = Column(DECIMAL(precision=12,scale=0))# (12,0)
-    Amount = Column(DECIMAL(precision=18,scale=3))# (18,3)
-    BenchMarkOpenPrice = Column(DECIMAL(precision=9,scale=3))# (9,3)
-    Change = Column(DECIMAL(precision=9,scale=3))# (9,3)
-    ChangeRatio = Column(DECIMAL(precision=9,scale=4))# (9,4)
-    TotalVolume = Column(BIGINT)#
-    VWAP = Column(DECIMAL(precision=9,scale=3))# (9,3)
-    CumulativeLowPrice = Column(DECIMAL(precision=9,scale=3))# (9,3)
-    CumulativeHighPrice = Column(DECIMAL(precision=9,scale=3))# (9,3)
-    CumulativeVWAP = Column(DECIMAL(precision=9,scale=3))# (9,3)
+    PRICE = Column(DECIMAL(precision=9,scale=3))# (9,3)
 
-    def __repr__(self):
-        return "<MinData(ShortName='%s', ProductID='%s', SecurityID='%s')>" % \
-        (self.ShortName,self.ProductID,self.SecurityID)
+class TradePriceModel(Base):
+    __tablename__ = 'TradePrice'
+    SecurityID = Column(BIGINT,primary_key=True)
+    PID = Column(INTEGER)
+    MARKET = Column(VARCHAR(length=4),primary_key=True)
+    SECCODE = Column(VARCHAR(length=6))
+    SECNAME = Column(VARCHAR(length=20))
+    DELAY = Column(INTEGER)# 延时的秒数
+    PRICE = Column(DECIMAL(precision=9,scale=3))# (9,3)
+
+class OtherPriceModel(Base):
+    __tablename__ = 'OtherPrice'
+    SecurityID = Column(BIGINT,primary_key=True)
+    PID = Column(INTEGER)
+    MARKET = Column(VARCHAR(length=4),primary_key=True)
+    SECCODE = Column(VARCHAR(length=6))
+    SECNAME = Column(VARCHAR(length=20))
+    DELAY = Column(INTEGER)# 延时的秒数
+    HIGH = Column(DECIMAL(precision=9,scale=3))# (9,3)
+    LOW = Column(DECIMAL(precision=9,scale=3))# (9,3)
+    SIGNAL = Column(DECIMAL(precision=9,scale=3))# (9,3)
+
+def L2OpenPrice(src):
+    rowData = {}
+    rowData['SecurityID'] = src.SecurityID
+    rowData['SECCODE'] = src.Symbol
+    rowData['PID'] = src.ProductID
+    rowData['MARKET'] = src.Market
+    rowData['SECNAME'] = src.ShortName.decode('UTF-8')
+    rowData['PRICE'] = src.OpenPrice
+    rowData['DELAY'] = int(time.time()) - src.UNIX/1000
+    return MinuteDataModel(**rowData)
+
+def L2TradePrice(src):
+    rowData = {}
+    rowData['SecurityID'] = src.SecurityID
+    rowData['SECCODE'] = src.Symbol
+    rowData['PID'] = src.ProductID
+    rowData['MARKET'] = src.Market
+    rowData['SECNAME'] = src.ShortName.decode('UTF-8')
+    rowData['PRICE'] = (src.HighPrice + src.LowPrice)/20
+    rowData['DELAY'] = int(time.time()) - src.UNIX/1000
+    return MinuteDataModel(**rowData)
+
+def L2OtherPrice(src):
+    rowData = {}
+    rowData['SecurityID'] = src.SecurityID
+    rowData['SECCODE'] = src.Symbol
+    rowData['PID'] = src.ProductID
+    rowData['MARKET'] = src.Market
+    rowData['SECNAME'] = src.ShortName.decode('UTF-8')
+    rowData['HIGH'] = src.HighPrice
+    rowData['LOW'] = src.LowPrice
+    rowData['SIGNAL'] = (src.HighPrice + src.LowPrice)/20
+    rowData['DELAY'] = int(time.time()) - src.UNIX/1000
+    return MinuteDataModel(**rowData)
 
 # 将一行的字符串数据转换为ORM类对象
 def Level1Min2MinuteData(src):
