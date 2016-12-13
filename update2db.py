@@ -16,6 +16,7 @@ def DB_MinCallBack(l):
     hour = int(l.TradingTime[11:13])
     minute = int(l.TradingTime[14:16])
     if hour < now.hour or (hour == now.hour and minute < now.minute):
+        print('丢弃修正数据')
         return
     # 使用ProductID过滤中间数据,使用SecurityID过滤股票
     if math.floor(l.SecurityID/1000000000) == 201 and l.ProductID != 4294967295:

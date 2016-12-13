@@ -2,7 +2,7 @@
 import time,sys,logging,threading,datetime
 from datetime import timedelta
 from db import *
-import sqlalchemy
+import sqlalchemy,traceback
 # 计数器类，从来展示数据实时接收的情况
 class Counter(threading.Thread):
     def __init__(self):
@@ -76,7 +76,8 @@ class ConsumeThread(threading.Thread):
             self.log('开始提交 %s 条数据' % sLen)
             try:
                 s.commit()
-            except sqlalchemy.exc.IntegrityError:
+            except sqlalchemy.exc.IntegrityError,e:
+                self.log(traceback.format_exc())
                 self.log('提交 %s 条异常，主键冲突' % sLen)
             else:
                 self.log('提交 %s 条完成' % sLen)
