@@ -2,7 +2,7 @@
 import time,sys,logging,threading,datetime
 from datetime import timedelta
 from db import *
-
+import sqlalchemy
 # 计数器类，从来展示数据实时接收的情况
 class Counter(threading.Thread):
     def __init__(self):
