@@ -49,7 +49,7 @@ def L2OpenPrice(src):
     rowData['SECNAME'] = src.ShortName.decode('UTF-8')
     rowData['PRICE'] = src.OpenPrice
     rowData['DELAY'] = int(time.time()) - src.UNIX/1000
-    return MinuteDataModel(**rowData)
+    return OpenPriceModel(**rowData)
 
 def L2TradePrice(src):
     rowData = {}
@@ -60,7 +60,7 @@ def L2TradePrice(src):
     rowData['SECNAME'] = src.ShortName.decode('UTF-8')
     rowData['PRICE'] = (src.HighPrice + src.LowPrice)/20
     rowData['DELAY'] = int(time.time()) - src.UNIX/1000
-    return MinuteDataModel(**rowData)
+    return TradePriceModel(**rowData)
 
 def L2OtherPrice(src):
     rowData = {}
@@ -73,7 +73,7 @@ def L2OtherPrice(src):
     rowData['LOW'] = src.LowPrice
     rowData['SIGNAL'] = (src.HighPrice + src.LowPrice)/20
     rowData['DELAY'] = int(time.time()) - src.UNIX/1000
-    return MinuteDataModel(**rowData)
+    return OtherPriceModel(**rowData)
 
 # 将一行的字符串数据转换为ORM类对象
 def Level1Min2MinuteData(src):

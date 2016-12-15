@@ -21,7 +21,7 @@ def DB_MinCallBack(l):
     # 使用ProductID过滤中间数据,使用SecurityID过滤股票
     if math.floor(l.SecurityID/1000000000) == 201 and l.ProductID != 4294967295:
         itemCounter.step()
-        box.add(l)
+        task.add(l)
 
 # 上海单支订阅
 def getSSEL1(conn,code):
