@@ -147,13 +147,19 @@ class DailyTask(threading.Thread):
     def stop(self):
         self.runningFlag = False
 
-class Container:
+class StatisticTask(threading.Thread):
     def __init__(self,SessionClass):
+        threading.Thread.__init__(self)
+        self.SessionClass = SessionClass
+        self.reset()
+
+    def reset(self):
         self.openPrc = {}
         self.tradePrc = {}
         self.otherPrc = {}
-        self.SessionClass = SessionClass
-
+        self.dbSession = SessionClass()
+        self.runningFlag = True
+        self.commitingFlag = False
     def add(self,l):
         hour = int(l.TradingTime[11:13])
         minute = int(l.TradingTime[14:16])
@@ -177,3 +183,35 @@ class Container:
                 self.openPrc[l.SecurityID].DELAY = int(time.time()) - l.UNIX/1000
             else:
                 self.openPrc[l.SecurityID] = L2OpenPrice(l)
+
+    def commit():
+        now = datetime.datetime.now()
+        hour = now.hour
+        minute = now.minute
+        second = now.second
+        if(hour == 14 and minute == 45 and second >= 15):
+            self.dbSession.add_all([self.otherPrc[i] for i in self.otherPrc])
+            self.dbSession.commit()
+        elif(hour+minute == 15 and second >= 15):
+            self.dbSession.add_all([self.tradePrc[i] for i in self.tradePrc])
+            self.dbSession.commit()
+        elif(hour == 9 and minute == 30 and second >= 15):
+            self.dbSession.add_all([self.openPrc[i] for i in self.openPrc])
+            self.dbSession.commit()
+
+    def run(self):
+        while(self.runningFlag):
+            self.commitingFlag = True
+            self.commit()
+            self.commitingFlag = False
+            time.sleep(1)
+    def stop(self):
+        self.runningFlag = False
+        while(True):
+            if(not self.commitingFlag):
+                time.sleep(2)
+                break
+            time.sleep(1)
+        print('task线程停止')
+        self.reset()
+        print('task线程重置')

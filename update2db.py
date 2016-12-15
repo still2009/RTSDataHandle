@@ -7,11 +7,8 @@ import sys,math
 from threading import current_thread
 
 # 初始化2个线程
-commitThread = ConsumeThread(Session)
 itemCounter = Counter()
-
-# 全局容器box
-box = Container()
+task = StatisticTask(Session)
 # 订阅回调函数，接收到数据是被调用，应该在该函数中处理接收到的数据。
 def DB_MinCallBack(l):
     # 先丢弃修正数据(mintime在当前时间之前)
@@ -60,22 +57,26 @@ def AUnSub(conn):
 
 # 初始化程序，并开启沪深全市场1min订阅
 def begin(conn,f=60):
+    # 创建表
+    print('创建表')
+    createTables()
     print('启动子线程...')
     itemCounter.start()
-    commitThread.start()
-    print('创建数据库')
-    createTable()
+    task.start()
     print('开始订阅')
     ASub(conn,freq=f)
 
 # 清理程序，并全部退订
 def end(conn):
-    print('关闭子线程...')
-    itemCounter.stop()
-    commitThread.stop()
-    print('子线程关闭成功')
     AUnSub(conn)
     print('全部退订成功')
+    print('关闭子线程...')
+    itemCounter.stop()
+    task.stop()
+    print('子线程关闭成功')
+    print('删除表')
+    dropTables()
+
 
 # 初始化计时线程
 globalConn = TDPS()

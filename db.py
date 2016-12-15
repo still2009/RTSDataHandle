@@ -104,9 +104,10 @@ def Level1Min2MinuteData(src):
     rowData['DELAY'] = int(time.time()) - src.UNIX/1000
     return MinuteDataModel(**rowData)
 
-def createTable():
+def createTables():
     Base.metadata.create_all(engine)
-
+def dropTables():
+    Base.metadata.drop_all(engine)
 # 根据json配置文件生成连接字符串
 def getConfEngine():
     conf = json.load(open('db.conf','r'))
