@@ -83,20 +83,22 @@ class StatisticTask(threading.Thread):
             if self.otherPrc.get(l.SecurityID) != None:
                 self.otherPrc[l.SecurityID].HIGH = max(l.HighPrice,self.otherPrc[l.SecurityID].HIGH)
                 self.otherPrc[l.SecurityID].LOW = min(l.HighPrice,self.otherPrc[l.SecurityID].LOW)
-                self.otherPrc[l.SecurityID].SIGNAL = self.otherPrc[l.SecurityID].SIGNAL + (l.HighPrice + l.LowPrice)/20
-                self.otherPrc[l.SecurityID].DELAY = int(time.time()) - l.UNIX/1000
+                prevPrc = float(self.otherPrc[l.SecurityID].SIGNAL)
+                self.otherPrc[l.SecurityID].SIGNAL = prevPrc + (l.HighPrice + l.LowPrice)/20
+                self.otherPrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX/1000)
             else:
                 self.otherPrc[l.SecurityID] = L2OtherPrice(l)
         elif(hour == 14 and 51 <= minute <= 59 or (hour == 15 and minute == 0)):
             if self.tradePrc.get(l.SecurityID) != None:
-                self.tradePrc[l.SecurityID].PRICE = self.tradePrc[l.SecurityID].PRICE + (l.HighPrice + l.LowPrice)/20
-                self.tradePrc[l.SecurityID].DELAY = int(time.time()) - l.UNIX/1000
+                prevPrc = float(self.tradePrc[l.SecurityID].PRICE)
+                self.tradePrc[l.SecurityID].PRICE = prevPrc + (l.HighPrice + l.LowPrice)/20
+                self.tradePrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX/1000)
             else:
                 self.tradePrc[l.SecurityID] = L2TradePrice(l)
         elif(hour == 9 and minute == 30):
             if self.openPrc.get(l.SecurityID) != None:
                 self.openPrc[l.SecurityID].PRICE = l.OpenPrice
-                self.openPrc[l.SecurityID].DELAY = int(time.time()) - l.UNIX/1000
+                self.openPrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX/1000)
             else:
                 self.openPrc[l.SecurityID] = L2OpenPrice(l)
 
