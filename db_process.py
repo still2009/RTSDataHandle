@@ -48,7 +48,7 @@ class DailyTask(threading.Thread):
         target = datetime.datetime(now.year,now.month,now.day,self.hour,self.minute,self.second)
         # 今日此时已过
         if(target < now):
-            target = now + timedelta(days=1)
+            target = target + timedelta(days=1)
         return abs((target-now).total_seconds())
 
     def run(self):
