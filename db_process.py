@@ -73,7 +73,7 @@ class StatisticTask(threading.Thread):
         self.openPrc = {}
         self.tradePrc = {}
         self.otherPrc = {}
-        self.dbSession = SessionClass()
+        self.dbSession = self.SessionClass()
         self.runningFlag = True
         self.commitingFlag = False
     def add(self,l):
