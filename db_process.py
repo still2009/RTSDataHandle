@@ -100,7 +100,7 @@ class StatisticTask(threading.Thread):
             else:
                 self.openPrc[l.SecurityID] = L2OpenPrice(l)
 
-    def commit():
+    def commit(self):
         now = datetime.datetime.now()
         hour = now.hour
         minute = now.minute
