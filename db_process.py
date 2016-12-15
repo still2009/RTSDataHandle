@@ -87,7 +87,7 @@ class StatisticTask(threading.Thread):
                 self.otherPrc[l.SecurityID].DELAY = int(time.time()) - l.UNIX/1000
             else:
                 self.otherPrc[l.SecurityID] = L2OtherPrice(l)
-        elif(hour == 14 and 51 <= minute <= 59 or hour+minute == 15):
+        elif(hour == 14 and 51 <= minute <= 59 or (hour == 15 and minute == 0)):
             if self.tradePrc.get(l.SecurityID) != None:
                 self.tradePrc[l.SecurityID].PRICE = self.tradePrc[l.SecurityID].PRICE + (l.HighPrice + l.LowPrice)/20
                 self.tradePrc[l.SecurityID].DELAY = int(time.time()) - l.UNIX/1000
@@ -108,7 +108,7 @@ class StatisticTask(threading.Thread):
         if(hour == 14 and minute == 45 and second >= 15):
             self.dbSession.add_all([self.otherPrc[i] for i in self.otherPrc])
             self.dbSession.commit()
-        elif(hour+minute == 15 and second >= 15):
+        elif(hour == 15 and minute == 0 and second >= 15):
             self.dbSession.add_all([self.tradePrc[i] for i in self.tradePrc])
             self.dbSession.commit()
         elif(hour == 9 and minute == 30 and second >= 15):
