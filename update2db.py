@@ -6,11 +6,12 @@ from datetime import datetime as dt
 import sys,math
 from threading import current_thread
 
-# 初始化2个线程
-itemCounter = Counter()
-task = StatisticTask(Session)
+#声明全局变量
+itemCounter = None
+task = None
 # 订阅回调函数，接收到数据是被调用，应该在该函数中处理接收到的数据。
 def DB_MinCallBack(l):
+    global itemCounter,task
     # 先丢弃修正数据(mintime在当前时间之前)
     now = dt.now()
     hour = int(l.TradingTime[11:13])
@@ -57,6 +58,10 @@ def AUnSub(conn):
 
 # 初始化程序，并开启沪深全市场1min订阅
 def begin(conn,f=60):
+    # 初始化2个线程
+    global itemCounter,task
+    itemCounter = Counter()
+    task = StatisticTask(Session)
     # 创建表
     print('创建表')
     createTables()
@@ -71,6 +76,7 @@ def end(conn):
     AUnSub(conn)
     print('全部退订成功')
     print('关闭子线程...')
+    global itemCounter,task
     itemCounter.stop()
     task.stop()
     print('子线程关闭成功')
