@@ -3,7 +3,7 @@ import time,sys,logging,threading,datetime
 from datetime import timedelta
 from db import *
 import sqlalchemy,traceback
-# 计数器类，从来展示数据实时接收的情况
+# 计数器类，展示数据实时接收情况
 class Counter(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -26,7 +26,7 @@ class Counter(threading.Thread):
     def step(self):
         self.count += 1
 
-# 根据配置文件 控制 数据接收的开与关
+# 自动化控制类，根据配置文件 控制 数据接收的开与关
 class MonitorTask(threading.Thread):
     def __init__(self,bf,bp,ef,ep):
         '''
@@ -88,6 +88,7 @@ class MonitorTask(threading.Thread):
     def stop(self):
         self.runningFlag = False
 
+# 数据统计类，根据需求对实时接收到的数据进行统计并提交到数据库
 class StatisticTask(threading.Thread):
     def __init__(self,SessionClass):
         threading.Thread.__init__(self)
@@ -111,7 +112,7 @@ class StatisticTask(threading.Thread):
                 prevPrc = float(self.otherPrc[l.SecurityID].SIGNAL)
                 self.otherPrc[l.SecurityID].SIGNAL = prevPrc + (l.HighPrice + l.LowPrice)/20
                 self.otherPrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX/1000)
-                self.OtherPrice[l.SecurityID].PID += 1# 通过起始ProductID每计算一次加一来判断计算条目是否齐全
+                self.otherPrc[l.SecurityID].PID += 1# 通过起始ProductID每计算一次加一来判断计算条目是否齐全
             else:
                 self.otherPrc[l.SecurityID] = L2OtherPrice(l)
         elif(hour == 14 and 51 <= minute <= 59 or (hour == 15 and minute == 0)):
