@@ -77,18 +77,18 @@ def end(conn):
     print('全部退订成功')
     print('关闭子线程...')
     global itemCounter,task
-    itemCounter.stop()
-    task.stop()
-    print('子线程关闭成功')
-    print('删除表')
+    if itemCounter != None:
+        itemCounter.stop()
+        print('计数器子线程关闭成功')
+    if task != None:
+        task.stop()
+        print('统计器子线程关闭成功')
     dropTables()
+    print('删除表成功')
 
 
 # 初始化计时线程
 globalConn = TDPS()
-timeConf = json.load(open('timer.conf','r'))
-dailyStart = DailyTask(timeConf['start_h'],timeConf['start_m'],timeConf['start_s'],begin,(globalConn,))
-dailyEnd = DailyTask(timeConf['end_h'],timeConf['end_m'],timeConf['end_s'],end,(globalConn,))
 if __name__ == '__main__':
-    dailyStart.start()
-    dailyEnd.start()
+    monitor = MonitorTask(begin,(globalConn,),end,(globalConn,))
+    monitor.start()

@@ -26,39 +26,64 @@ class Counter(threading.Thread):
     def step(self):
         self.count += 1
 
-# 定时器任务类，用来执行定时任务
-class DailyTask(threading.Thread):
-    def __init__(self,h,m,s,fun,params):
+# 根据配置文件 控制 数据接收的开与关
+class MonitorTask(threading.Thread):
+    def __init__(self,bf,bp,ef,ep):
         '''
-        h : 小时 0~23
-        m : 分钟 0~59
-        fun : 执行的函数
-        params : 函数参数
+        bf : begin function 起始任务执行的函数
+        bp : begin function params起始函数参数
+        ef : 结束任务函数
+        ep : 结束任务函数参数
         '''
         threading.Thread.__init__(self)
-        self.hour = h
-        self.minute = m
-        self.second = s
-        self.fun = fun
-        self.params = params
         self.runningFlag = True
+        self.reloadConf()
+        self.bf = bf
+        self.bp = bp
+        self.ef = ef
+        self.ep = ep
+        self.beginFlag = False# 指示begin函数是否在运行中
+    def reloadConf(self):
+        '''重新加载配置'''
+        timeConf = json.load(open('timer.conf','r'))
+        self.startTime = (timeConf['start_h'],timeConf['start_m'],timeConf['start_s'])
+        self.endTime = (timeConf['end_h'],timeConf['end_m'],timeConf['end_s'])
 
     def _calcDelay(self):
+        '''
+        比较当前时间与配置时间，并决定begin和end函数的执行时间
+        若在开盘时间内，则执行begin函数，若已收盘，则执行end函数
+        return (delay1,delay2)，延时元祖
+        '''
         now = datetime.datetime.now()
-        target = datetime.datetime(now.year,now.month,now.day,self.hour,self.minute,self.second)
-        # 今日此时已过
-        if(target < now):
-            target = target + timedelta(days=1)
-        return abs((target-now).total_seconds())
+        tgtBegin = datetime.datetime(now.year,now.month,now.day,self.startTime[0],self.startTime[1],self.startTime[2])
+        tgtEnd = datetime.datetime(now.year,now.month,now.day,self.endTime[0],self.endTime[1],self.endTime[2])
+        if(tgtBegin < now < tgtEnd):# 盘中
+            return (0,(tgtEnd-now).total_seconds())
+        elif(now > tgtEnd):# 盘后
+            tgtBegin = tgtBegin + timedelta(days=1)
+            return ((tgtBegin-now).total_seconds(),0)
+        elif(now < tgtBegin):# 盘前
+            return ((tgtBegin-now).total_seconds(),0)
+        else:
+            time.sleep(1)
+            return self._calcDelay()
+
 
     def run(self):
+        '''根据延时执行任务'''
         while(self.runningFlag):
             delay = self._calcDelay()
-            print('设定在%ss后执行任务\n' % delay)
-            time.sleep(delay)
-            print('开始执行任务..')
-            self.fun(*self.params)
-            print('任务执行结束..')
+            if self.beginFlag:
+                # 起始函数运行时的操作,begin与end是一一对应的
+                time.sleep(delay[1])
+                self.ef(*self.ep)
+                self.beginFlag = False
+            else:
+                # 在任何时刻，当begin不在运行中时，执行end都是毫无意义的，end总是在begin之后运行
+                time.sleep(delay[0])
+                self.beginFlag = True
+                self.bf(*self.bp)
 
     def stop(self):
         self.runningFlag = False
@@ -80,12 +105,13 @@ class StatisticTask(threading.Thread):
         hour = int(l.TradingTime[11:13])
         minute = int(l.TradingTime[14:16])
         if(hour == 14 and 36 <= minute <= 45):
-            if self.otherPrc.get(l.SecurityID) != None:
+            if self.otherPrc.get(l.SecurityID) != None:# 已经计算过一条了
                 self.otherPrc[l.SecurityID].HIGH = max(l.HighPrice,self.otherPrc[l.SecurityID].HIGH)
                 self.otherPrc[l.SecurityID].LOW = min(l.HighPrice,self.otherPrc[l.SecurityID].LOW)
                 prevPrc = float(self.otherPrc[l.SecurityID].SIGNAL)
                 self.otherPrc[l.SecurityID].SIGNAL = prevPrc + (l.HighPrice + l.LowPrice)/20
                 self.otherPrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX/1000)
+                self.OtherPrice[l.SecurityID].PID += 1# 通过起始ProductID每计算一次加一来判断计算条目是否齐全
             else:
                 self.otherPrc[l.SecurityID] = L2OtherPrice(l)
         elif(hour == 14 and 51 <= minute <= 59 or (hour == 15 and minute == 0)):
@@ -93,12 +119,14 @@ class StatisticTask(threading.Thread):
                 prevPrc = float(self.tradePrc[l.SecurityID].PRICE)
                 self.tradePrc[l.SecurityID].PRICE = prevPrc + (l.HighPrice + l.LowPrice)/20
                 self.tradePrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX/1000)
+                self.tradePrc[l.SecurityID].PID += 1
             else:
                 self.tradePrc[l.SecurityID] = L2TradePrice(l)
         elif(hour == 9 and minute == 30):
             if self.openPrc.get(l.SecurityID) != None:
                 self.openPrc[l.SecurityID].PRICE = l.OpenPrice
                 self.openPrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX/1000)
+                self.openPrc[l.SecurityID].PID += 1
             else:
                 self.openPrc[l.SecurityID] = L2OpenPrice(l)
 
