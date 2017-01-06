@@ -7,3 +7,4 @@ ipconfig.txt
 *.csv
 *.DS_Store
 *.conf
+.idea

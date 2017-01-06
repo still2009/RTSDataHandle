@@ -2,8 +2,8 @@
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.mssql import INTEGER,VARCHAR,DATE,DATETIME,DECIMAL,NVARCHAR,BIGINT
-import sys,time,datetime
+from sqlalchemy.dialects.mssql import INTEGER, VARCHAR, DATE, DATETIME, DECIMAL, NVARCHAR, BIGINT
+import time
 from DSPStruct import Level1Min
 import codecs,platform,os,json
 
