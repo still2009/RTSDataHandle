@@ -1,9 +1,10 @@
 # coding=UTF-8
-from TDPS import *
-from DSPStruct import *
-from db_process import *
-from datetime import datetime as dt
 import math
+from datetime import datetime as dt
+
+from TDPS import *
+
+from db_process import *
 
 # 声明全局变量
 itemCounter = None
@@ -87,10 +88,10 @@ def end(conn):
     print('全部退订成功')
     print('关闭子线程...')
     global itemCounter, task
-    if itemCounter != None:
+    if itemCounter is not None:
         itemCounter.stop()
         print('计数器子线程关闭成功')
-    if task != None:
+    if task is not None:
         task.stop()
         print('统计器子线程关闭成功')
     dropTables()

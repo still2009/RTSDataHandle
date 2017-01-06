@@ -1,13 +1,17 @@
 # coding:UTF-8
-import time
-import sys
-import logging
-import threading
 import datetime
+import logging
+import sys
+import threading
 from datetime import timedelta
+
 from db import *
-import sqlalchemy
-import traceback
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(filename)s[%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='%d %b %Y %H:%M:%S',
+                    filename='receiver.log',
+                    filemode='w')
 
 
 # 计数器类，展示数据实时接收情况
@@ -41,12 +45,12 @@ class Counter(threading.Thread):
 # 自动化控制类，根据配置文件 控制 数据接收的开与关
 class MonitorTask(threading.Thread):
     def __init__(self, bf, bp, ef, ep):
-        '''
+        """
         bf : begin function 起始任务执行的函数
         bp : begin function params起始函数参数
         ef : 结束任务函数
         ep : 结束任务函数参数
-        '''
+        """
         threading.Thread.__init__(self)
         self.runningFlag = True
         self.reloadConf()
@@ -57,17 +61,17 @@ class MonitorTask(threading.Thread):
         self.beginFlag = False  # 指示begin函数是否在运行中
 
     def reloadConf(self):
-        '''重新加载配置'''
-        timeConf = json.load(open('timer.conf', 'r'))
+        """重新加载配置"""
+        timeConf = json.load(open('conf/timer.conf', 'r'))
         self.startTime = (timeConf['start_h'], timeConf['start_m'], timeConf['start_s'])
         self.endTime = (timeConf['end_h'], timeConf['end_m'], timeConf['end_s'])
 
     def _calcDelay(self):
-        '''
+        """
         比较当前时间与配置时间，并决定begin和end函数的执行时间
         若在开盘时间内，则执行begin函数，若已收盘，则执行end函数
         return (delay1,delay2)，延时元祖
-        '''
+        """
         now = datetime.datetime.now()
         tgtBegin = datetime.datetime(now.year, now.month, now.day, self.startTime[0], self.startTime[1],
                                      self.startTime[2])
@@ -124,6 +128,7 @@ class StatisticTask(threading.Thread):
         hour = int(l.TradingTime[11:13])
         minute = int(l.TradingTime[14:16])
         if hour == 14 and 36 <= minute <= 45:
+            logging.info('14:36--14:45 : %s' % l.ProductID)
             if self.otherPrc.get(l.SecurityID) is not None:  # 已经计算过一条了
                 self.otherPrc[l.SecurityID].HIGH = max(l.CumulativeHighPrice, self.otherPrc[l.SecurityID].HIGH)
                 self.otherPrc[l.SecurityID].LOW = min(l.CumulativeLowPrice, self.otherPrc[l.SecurityID].LOW)
@@ -134,6 +139,7 @@ class StatisticTask(threading.Thread):
             else:
                 self.otherPrc[l.SecurityID] = L2OtherPrice(l)
         elif hour == 14 and 51 <= minute <= 59 or (hour == 15 and minute == 0):
+            logging.info('14:51--15:00 : %s' % l.ProductID)
             if self.tradePrc.get(l.SecurityID) is not None:
                 prevPrc = float(self.tradePrc[l.SecurityID].PRICE)
                 self.tradePrc[l.SecurityID].PRICE = prevPrc + (l.HighPrice + l.LowPrice) / 20
@@ -142,6 +148,7 @@ class StatisticTask(threading.Thread):
             else:
                 self.tradePrc[l.SecurityID] = L2TradePrice(l)
         elif hour == 9 and minute == 30:
+            logging.info('9:30 : %s' % l.ProductID)
             if self.openPrc.get(l.SecurityID) is not None:
                 self.openPrc[l.SecurityID].PRICE = l.OpenPrice
                 self.openPrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX / 1000)
