@@ -93,11 +93,13 @@ class MonitorTask(threading.Thread):
             delay = self._calcDelay()
             if self.beginFlag:
                 # 起始函数运行时的操作,begin与end是一一对应的
+                print('%s 秒之后停止接收并清除数据' % delay[1])
                 time.sleep(delay[1])
                 self.ef(*self.ep)
                 self.beginFlag = False
             else:
                 # 在任何时刻，当begin不在运行中时，执行end都是毫无意义的，end总是在begin之后运行
+                print('%s 秒之后开始接收' % delay[0])
                 time.sleep(delay[0])
                 self.beginFlag = True
                 self.bf(*self.bp)
