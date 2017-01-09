@@ -76,19 +76,19 @@ class MonitorTask(threading.Thread):
         tgtBegin = datetime.datetime(now.year, now.month, now.day, self.startTime[0], self.startTime[1],
                                      self.startTime[2])
         tgtEnd = datetime.datetime(now.year, now.month, now.day, self.endTime[0], self.endTime[1], self.endTime[2])
-        if (tgtBegin < now < tgtEnd):  # 盘中
-            return (0, (tgtEnd - now).total_seconds())
-        elif (now > tgtEnd):  # 盘后
+        if tgtBegin < now < tgtEnd:  # 盘中
+            return 0, (tgtEnd - now).total_seconds()
+        elif now > tgtEnd:  # 盘后
             tgtBegin = tgtBegin + timedelta(days=1)
-            return ((tgtBegin - now).total_seconds(), 0)
-        elif (now < tgtBegin):  # 盘前
-            return ((tgtBegin - now).total_seconds(), 0)
+            return (tgtBegin - now).total_seconds(), 0
+        elif now < tgtBegin:  # 盘前
+            return (tgtBegin - now).total_seconds(), 0
         else:
             time.sleep(1)
             return self._calcDelay()
 
     def run(self):
-        '''根据延时执行任务'''
+        """根据延时执行任务"""
         while (self.runningFlag):
             delay = self._calcDelay()
             if self.beginFlag:
@@ -115,6 +115,12 @@ class StatisticTask(threading.Thread):
         self.addFlag = True
 
     def reset(self):
+        """
+        tradePrc为一个map:
+         {'6000' : (Level1Min, ProductID)
+          '9000' : (Level1Min, ProductID)
+         }
+        """
         self.openPrc = {}
         self.tradePrc = {}
         self.otherPrc = {}
@@ -127,34 +133,46 @@ class StatisticTask(threading.Thread):
             return
         hour = int(l.TradingTime[11:13])
         minute = int(l.TradingTime[14:16])
+        # 第一个时间分段
         if hour == 14 and 36 <= minute <= 45:
-            logging.info('14:36--14:45 : %s' % l.ProductID)
+            logging.info('14:36--14:45 : %s %s' % (l.ProductID, l.TradingTime))
             if self.otherPrc.get(l.SecurityID) is not None:  # 已经计算过一条了
-                self.otherPrc[l.SecurityID].HIGH = max(l.CumulativeHighPrice, self.otherPrc[l.SecurityID].HIGH)
-                self.otherPrc[l.SecurityID].LOW = min(l.CumulativeLowPrice, self.otherPrc[l.SecurityID].LOW)
-                prevPrc = float(self.otherPrc[l.SecurityID].SIGNAL)
-                self.otherPrc[l.SecurityID].SIGNAL = prevPrc + (l.HighPrice + l.LowPrice) / 20
-                self.otherPrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX / 1000)
-                self.otherPrc[l.SecurityID].PID += 1  # 通过起始ProductID每计算一次加一来判断计算条目是否齐全
+                if self.otherPrc[l.SecurityID][1] == l.ProductID:  # 上一次计算的id不该等于这次的
+                    return
+                self.otherPrc[l.SecurityID][0].HIGH = max(l.CumulativeHighPrice, self.otherPrc[l.SecurityID][0].HIGH)
+                self.otherPrc[l.SecurityID][0].LOW = min(l.CumulativeLowPrice, self.otherPrc[l.SecurityID][0].LOW)
+                prevPrc = float(self.otherPrc[l.SecurityID][0].SIGNAL)
+                self.otherPrc[l.SecurityID][0].SIGNAL = prevPrc + (l.HighPrice + l.LowPrice) / 20
+                self.otherPrc[l.SecurityID][0].DELAY = int(time.time()) - int(l.UNIX / 1000)
+                self.otherPrc[l.SecurityID][0].PID += 1  # 通过起始ProductID每计算一次加一来判断计算条目是否齐全
+                self.otherPrc[l.SecurityID][1] = l.ProductID
             else:
-                self.otherPrc[l.SecurityID] = L2OtherPrice(l)
+                self.otherPrc[l.SecurityID] = (L2OtherPrice(l), l.ProductID)
+        # 第二个时间段
         elif hour == 14 and 51 <= minute <= 59 or (hour == 15 and minute == 0):
-            logging.info('14:51--15:00 : %s' % l.ProductID)
+            logging.info('14:51--15:00 : %s %s' % (l.ProductID, l.TradingTime))
             if self.tradePrc.get(l.SecurityID) is not None:
-                prevPrc = float(self.tradePrc[l.SecurityID].PRICE)
-                self.tradePrc[l.SecurityID].PRICE = prevPrc + (l.HighPrice + l.LowPrice) / 20
-                self.tradePrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX / 1000)
-                self.tradePrc[l.SecurityID].PID += 1
+                if self.tradePrc[l.SecurityID][1] == l.ProductID:
+                    return
+                prevPrc = float(self.tradePrc[l.SecurityID][0].PRICE)
+                self.tradePrc[l.SecurityID][0].PRICE = prevPrc + (l.HighPrice + l.LowPrice) / 20
+                self.tradePrc[l.SecurityID][0].DELAY = int(time.time()) - int(l.UNIX / 1000)
+                self.tradePrc[l.SecurityID][0].PID += 1
+                self.tradePrc[l.SecurityID][1] = l.ProductID
             else:
-                self.tradePrc[l.SecurityID] = L2TradePrice(l)
+                self.tradePrc[l.SecurityID] = (L2TradePrice(l), l.ProductID)
+        # 开盘
         elif hour == 9 and minute == 30:
-            logging.info('9:30 : %s' % l.ProductID)
+            logging.info('9:30 : %s %s' % (l.ProductID, l.TradingTime))
             if self.openPrc.get(l.SecurityID) is not None:
-                self.openPrc[l.SecurityID].PRICE = l.OpenPrice
-                self.openPrc[l.SecurityID].DELAY = int(time.time()) - int(l.UNIX / 1000)
-                self.openPrc[l.SecurityID].PID += 1
+                if self.openPrc[l.SecurityID][1] == l.ProductID:
+                    return
+                self.openPrc[l.SecurityID][0].PRICE = l.OpenPrice
+                self.openPrc[l.SecurityID][0].DELAY = int(time.time()) - int(l.UNIX / 1000)
+                self.openPrc[l.SecurityID][0].PID += 1
+                self.openPrc[l.SecurityID][1] = l.ProductID
             else:
-                self.openPrc[l.SecurityID] = L2OpenPrice(l)
+                self.openPrc[l.SecurityID] = (L2OpenPrice(l), l.ProductID)
 
     def commit(self):
         now = datetime.datetime.now()
@@ -188,3 +206,6 @@ class StatisticTask(threading.Thread):
         print('task线程停止')
         self.reset()
         print('task线程重置')
+
+    def __str__(self):
+        return '%s %s %s' % (str(self.openPrc), str(self.otherPrc), str(self.tradePrc))

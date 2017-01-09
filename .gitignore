@@ -8,4 +8,4 @@ ipconfig.txt
 *.DS_Store
 *.conf
 .idea
-/test
+/mytest

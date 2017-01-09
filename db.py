@@ -79,8 +79,10 @@ def L2OtherPrice(src):
 def createTables():
     Base.metadata.create_all(engine)
 
+
 def dropTables():
     Base.metadata.drop_all(engine)
+
 
 # 根据json配置文件生成连接字符串
 def getConfEngine():
