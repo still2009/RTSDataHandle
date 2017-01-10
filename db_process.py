@@ -182,13 +182,13 @@ class StatisticTask(threading.Thread):
         minute = now.minute
         second = now.second
         if hour == 14 and minute == 45 and second >= 15:
-            self.dbSession.add_all([self.otherPrc[i] for i in self.otherPrc])
+            self.dbSession.add_all([self.otherPrc[i][0] for i in self.otherPrc])
             self.dbSession.commit()
         elif hour == 15 and minute == 0 and second >= 15:
-            self.dbSession.add_all([self.tradePrc[i] for i in self.tradePrc])
+            self.dbSession.add_all([self.tradePrc[i][0] for i in self.tradePrc])
             self.dbSession.commit()
         elif hour == 9 and minute == 30 and second >= 15:
-            self.dbSession.add_all([self.openPrc[i] for i in self.openPrc])
+            self.dbSession.add_all([self.openPrc[i][0] for i in self.openPrc])
             self.dbSession.commit()
 
     def run(self):
