@@ -84,6 +84,7 @@ def begin(conn, f=60):
 
 # 清理程序，并全部退订
 def end(conn):
+    # todo 删除表和停止接收做分离
     AUnSub(conn)
     print('全部退订成功')
     print('关闭子线程...')

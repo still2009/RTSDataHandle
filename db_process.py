@@ -131,6 +131,7 @@ class StatisticTask(threading.Thread):
         self.commitingFlag = False
 
     def add(self, l):
+        # todo 代码优化,计算时间可配置
         if not self.addFlag:
             return
         hour = int(l.TradingTime[11:13])
@@ -149,7 +150,7 @@ class StatisticTask(threading.Thread):
                 self.otherPrc[l.SecurityID][0].PID += 1  # 通过起始ProductID每计算一次加一来判断计算条目是否齐全
                 self.otherPrc[l.SecurityID][1] = l.ProductID
             else:
-                self.otherPrc[l.SecurityID] = (L2OtherPrice(l), l.ProductID)
+                self.otherPrc[l.SecurityID] = [L2OtherPrice(l), l.ProductID]
         # 第二个时间段
         elif hour == 14 and 51 <= minute <= 59 or (hour == 15 and minute == 0):
             logging.info('14:51--15:00 : %s %s' % (l.ProductID, l.TradingTime))
@@ -162,7 +163,7 @@ class StatisticTask(threading.Thread):
                 self.tradePrc[l.SecurityID][0].PID += 1
                 self.tradePrc[l.SecurityID][1] = l.ProductID
             else:
-                self.tradePrc[l.SecurityID] = (L2TradePrice(l), l.ProductID)
+                self.tradePrc[l.SecurityID] = [L2TradePrice(l), l.ProductID]
         # 开盘
         elif hour == 9 and minute == 30:
             logging.info('9:30 : %s %s' % (l.ProductID, l.TradingTime))
@@ -174,9 +175,10 @@ class StatisticTask(threading.Thread):
                 self.openPrc[l.SecurityID][0].PID += 1
                 self.openPrc[l.SecurityID][1] = l.ProductID
             else:
-                self.openPrc[l.SecurityID] = (L2OpenPrice(l), l.ProductID)
+                self.openPrc[l.SecurityID] = [L2OpenPrice(l), l.ProductID]
 
     def commit(self):
+        # todo 上线前使用单元测试
         now = datetime.datetime.now()
         hour = now.hour
         minute = now.minute
