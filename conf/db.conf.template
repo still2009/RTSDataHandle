@@ -4,6 +4,6 @@
     "user":"username",
     "pwd":"pwd here",
     "ip":"ip address",
-    "port":"db service listen port",
+    "port":"1433",
     "dbname":"db name"
 }

@@ -1,4 +1,4 @@
-/log
+/log/*
 ipconfig.txt
 /__pycache__
 /2016*
@@ -8,4 +8,3 @@ ipconfig.txt
 *.DS_Store
 *.conf
 .idea
-/mytest

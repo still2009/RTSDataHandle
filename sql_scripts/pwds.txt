@@ -1,5 +1,0 @@
-sa:FINX-server
-admin:c0mm0n-adm1n
-developer:devel0per-user
-finx01~finx03:finx-c0mm0n
-finx_test:finx-c0mm0n-test

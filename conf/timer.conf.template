@@ -1,8 +1,8 @@
 {
     "start_h" : 9,
     "start_m" : 28,
-    "start_s" : 30,
-    "end_h" : 14,
-    "end_m" : 25,
-    "end_s" : 35
+    "start_s" : 0,
+    "end_h" : 15,
+    "end_m" : 1,
+    "end_s" : 0
 }
