@@ -1,0 +1,4 @@
+python : >= 3.5.2
+pymssql : >= 2.1.3
+sqlalchemy : >= 1.1.1
+TDPS : >= 1.1.-x64-
