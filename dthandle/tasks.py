@@ -97,31 +97,32 @@ class MonitorTask(threading.Thread):
                 self.bf(*self.bp)
 
     def stop(self):
+        """终止run方法以销毁线程"""
         self.runningFlag = False
 
 
 # 数据统计类，根据需求对实时接收到的数据进行统计并提交到数据库
 class StatisticTask(threading.Thread):
     def __init__(self, session_class):
+        """
+        线程初始化
+        tradePrc为一个map,例如:
+        {'6000' : (Level1Min, lastProductID, firstProductID),
+        '9000' : (Level1Min, lastProductID, firstProductID)}
+        """
         threading.Thread.__init__(self)
         self.SessionClass = session_class
-        self.reset()
-
-    def reset(self):
-        """
-        tradePrc为一个map:
-         {'6000' : (Level1Min, lastProductID, firstProductID)
-          '9000' : (Level1Min, lastProductID, firstProductID)
-         }
-        """
         self.openPrc = {}
         self.tradePrc = {}
         self.otherPrc = {}
         self.dbSession = self.SessionClass()
         self.runningFlag = True
-        self.commitingFlag = False
 
     def add(self, l):
+        """在线程运行期间 被回调函数的调用 添加数据至线程的容器中"""
+        if not self.runningFlag:
+            logging.info('统计线程已经关闭,不再添加数据')
+            return
         hour = int(l.TradingTime[11:13])
         minute = int(l.TradingTime[14:16])
         # 第一个时间分段PID 217-226
@@ -186,38 +187,29 @@ class StatisticTask(threading.Thread):
                                   (l.Symbol, l.ProductID, hour, minute, l.HighPrice, l.LowPrice)
                                   )
 
-    def commit(self):
-        now = datetime.datetime.now()
-        hour = now.hour
-        minute = now.minute
-        second = now.second
-        if hour == 14 and minute == 45 and second >= 15:
-            self.dbSession.add_all([self.otherPrc[i][0] for i in self.otherPrc])
-            self.dbSession.commit()
-        elif hour == 15 and minute == 0 and second >= 15:
-            self.dbSession.add_all([self.tradePrc[i][0] for i in self.tradePrc])
-            self.dbSession.commit()
-        elif hour == 9 and minute == 30 and second >= 15:
-            self.dbSession.add_all([self.openPrc[i][0] for i in self.openPrc])
-            self.dbSession.commit()
-
     def run(self):
+        """在指定时间提交数据到数据库"""
         while self.runningFlag:
-            self.commitingFlag = True
-            self.commit()
-            self.commitingFlag = False
-            time.sleep(1)
-
-    def stop(self):
-        self.runningFlag = False
-        while True:
-            if not self.commitingFlag:
-                time.sleep(2)
-                break
+            now = datetime.datetime.now()
+            hour, minute, second = now.hour, now.minute, now.second
+            # 开盘价写入
+            if hour == 9 and minute == 30 and second >= 15:
+                self.dbSession.add_all([self.openPrc[i][0] for i in self.openPrc])
+                self.dbSession.commit()
+            # signal价写入
+            elif hour == 14 and minute == 45 and second >= 15:
+                self.dbSession.add_all([self.otherPrc[i][0] for i in self.otherPrc])
+                self.dbSession.commit()
+            # trade价写入
+            elif hour == 15 and minute == 0 and second >= 15:
+                self.dbSession.add_all([self.tradePrc[i][0] for i in self.tradePrc])
+                self.dbSession.commit()
             time.sleep(1)
         logging.info('统计线程停止')
-        self.reset()
-        logging.info('统计线程重置')
+
+    def stop(self):
+        """终止run方法以销毁线程"""
+        self.runningFlag = False
 
     def __str__(self):
         return '%s %s %s' % (str(self.openPrc), str(self.otherPrc), str(self.tradePrc))

@@ -27,6 +27,7 @@ class OpenPriceModel(Base):
     SECNAME = Column(VARCHAR(length=20))
     DELAY = Column(INTEGER)  # 延时的秒数
     PRICE = Column(DECIMAL(precision=9, scale=3))  # (9,3)
+    TDATE = Column(VARCHAR(length=30))
 
     def __str__(self):
         return '%s : %s, %s' % (self.SECCODE, self.MARKET, self.PID)
@@ -41,6 +42,7 @@ class TradePriceModel(Base):
     SECNAME = Column(VARCHAR(length=20))
     DELAY = Column(INTEGER)  # 延时的秒数
     PRICE = Column(DECIMAL(precision=9, scale=3))  # (9,3)
+    TDATE = Column(VARCHAR(length=30))
 
     def __str__(self):
         return '%s : %s, %s' % (self.SECCODE, self.MARKET, self.PID)
@@ -57,6 +59,7 @@ class OtherPriceModel(Base):
     HIGH = Column(DECIMAL(precision=9, scale=3))  # (9,3)
     LOW = Column(DECIMAL(precision=9, scale=3))  # (9,3)
     SIGNAL = Column(DECIMAL(precision=9, scale=3))  # (9,3)
+    TDATE = Column(VARCHAR(length=30))
 
     def __str__(self):
         return '%s : %s, %s' % (self.SECCODE, self.MARKET, self.PID)
@@ -70,7 +73,8 @@ def l2model_open(src):
         'MARKET': src.Market,
         'SECNAME': src.ShortName.decode('UTF-8'),
         'PRICE': src.OpenPrice,
-        'DELAY': int(time.time()) - int(src.UNIX / 1000)
+        'DELAY': int(time.time()) - int(src.UNIX / 1000),
+        'TDATE': src.TradingDate
     }
     return OpenPriceModel(**row_data)
 
@@ -83,7 +87,8 @@ def l2model_trade(src):
         'MARKET': src.Market,
         'SECNAME': src.ShortName.decode('UTF-8'),
         'PRICE': (src.HighPrice + src.LowPrice) / 20,
-        'DELAY': int(time.time()) - int(src.UNIX / 1000)
+        'DELAY': int(time.time()) - int(src.UNIX / 1000),
+        'TDATE': src.TradingDate
     }
     return TradePriceModel(**row_data)
 
@@ -98,7 +103,8 @@ def l2model_other(src):
         'HIGH': src.HighPrice,
         'LOW': src.LowPrice,
         'SIGNAL': (src.HighPrice + src.LowPrice) / 20,
-        'DELAY': int(time.time()) - int(src.UNIX / 1000)
+        'DELAY': int(time.time()) - int(src.UNIX / 1000),
+        'TDATE': src.TradingDate
     }
     return OtherPriceModel(**row_data)
 

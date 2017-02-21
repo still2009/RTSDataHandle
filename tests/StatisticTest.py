@@ -70,5 +70,6 @@ def test_add():
     return t
 
 if __name__ == '__main__':
+    # todo 学习和使用单元测试
     test_str()
     test_add()
