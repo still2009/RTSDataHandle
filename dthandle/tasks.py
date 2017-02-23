@@ -193,20 +193,20 @@ class StatisticTask(threading.Thread):
             now = datetime.datetime.now()
             hour, minute, second = now.hour, now.minute, now.second
             # 开盘价写入
-            if hour == 9 and minute == 30 and second >= 15:
+            if hour == 9 and minute == 30 and second == 20:
                 self.dbSession.add_all([self.openPrc[i][0] for i in self.openPrc])
                 self.dbSession.commit()
                 logging.info('%s 条open price已写入数据库' % len(self.openPrc))
             # signal价写入
-            elif hour == 14 and minute == 45 and second >= 15:
+            elif hour == 14 and minute == 45 and second == 20:
                 self.dbSession.add_all([self.otherPrc[i][0] for i in self.otherPrc])
                 self.dbSession.commit()
-                logging.info('%s 条signal price已写入数据库' % self.otherPrc)
+                logging.info('%s 条signal price已写入数据库' % len(self.otherPrc))
             # trade价写入
-            elif hour == 15 and minute == 0 and second >= 15:
+            elif hour == 15 and minute == 0 and second == 20:
                 self.dbSession.add_all([self.tradePrc[i][0] for i in self.tradePrc])
                 self.dbSession.commit()
-                logging.info('%s 条trade price已写入数据库' % self.tradePrc)
+                logging.info('%s 条trade price已写入数据库' % len(self.tradePrc))
             time.sleep(1)
         logging.info('统计线程停止')
 
