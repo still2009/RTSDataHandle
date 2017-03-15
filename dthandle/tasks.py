@@ -102,7 +102,7 @@ class MonitorTask(threading.Thread):
 
 
 # 数据统计类，根据需求对实时接收到的数据进行统计并提交到数据库
-class StatisticTask(threading.Thread):
+class StoreTask(threading.Thread):
     def __init__(self, session_class):
         """
         线程初始化
@@ -117,6 +117,9 @@ class StatisticTask(threading.Thread):
         self.otherPrc = {}
         self.dbSession = self.SessionClass()
         self.runningFlag = True
+        self.openCommitFlag = False
+        self.otherCommitFlag = False
+        self.tradeCommitFlag = False
 
     def add(self, l):
         """在线程运行期间 被回调函数的调用 添加数据至线程的容器中"""
@@ -188,24 +191,32 @@ class StatisticTask(threading.Thread):
                                   )
 
     def run(self):
-        """在指定时间提交数据到数据库"""
+        """
+        在指定时间提交数据到数据库
+        已修复bug : 提交时刻应该是一个范围而不是一个定值, 如果在那一秒前发生线程切换且时间超过一秒
+                    就会导致提交条件不满足。错过了那一刻,数据将永远不会被提交。
+        在指定时刻后将相关容器中的数据写入数据库, 必须确保提交成功且只提交一次
+        """
         while self.runningFlag:
             now = datetime.datetime.now()
             hour, minute, second = now.hour, now.minute, now.second
             # 开盘价写入
-            if hour == 9 and minute == 30 and second == 20:
+            if hour == 9 and minute == 30 and second >= 25 and not self.openCommitFlag:
                 self.dbSession.add_all([self.openPrc[i][0] for i in self.openPrc])
                 self.dbSession.commit()
+                self.openCommitFlag = True
                 logging.info('%s 条open price已写入数据库' % len(self.openPrc))
             # signal价写入
-            elif hour == 14 and minute == 45 and second == 20:
+            elif hour == 14 and minute == 45 and second >= 25 and not self.otherCommitFlag:
                 self.dbSession.add_all([self.otherPrc[i][0] for i in self.otherPrc])
                 self.dbSession.commit()
+                self.otherCommitFlag = True
                 logging.info('%s 条signal price已写入数据库' % len(self.otherPrc))
             # trade价写入
-            elif hour == 15 and minute == 0 and second == 20:
+            elif hour == 15 and minute == 0 and second >= 25 and not self.tradeCommitFlag:
                 self.dbSession.add_all([self.tradePrc[i][0] for i in self.tradePrc])
                 self.dbSession.commit()
+                self.tradeCommitFlag = True
                 logging.info('%s 条trade price已写入数据库' % len(self.tradePrc))
             time.sleep(1)
         logging.info('统计线程停止')

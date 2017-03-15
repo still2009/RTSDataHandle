@@ -72,7 +72,7 @@ def start_receiver(conn, f=60):
     # 初始化2个线程
     global itemCounter, task
     itemCounter = Counter()
-    task = StatisticTask(GSession)
+    task = StoreTask(GSession)
     # 先删除表再创建,目的是清空数据
     logging.info('删除表')
     drop_tables()

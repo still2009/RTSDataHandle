@@ -7,7 +7,7 @@ from DSPStruct import Level1Min
 
 from dthandle.models import GSession
 from dthandle.models import l2model_open
-from dthandle.tasks import StatisticTask
+from dthandle.tasks import StoreTask
 
 
 # 构造一条用于测试的股票数据
@@ -62,7 +62,7 @@ def test_str():
 
 # 测试 StatisticTask的 add函数
 def test_add():
-    t = StatisticTask(GSession)
+    t = StoreTask(GSession)
     for item in create_items():
         t.add(item)
         t.add(item)
